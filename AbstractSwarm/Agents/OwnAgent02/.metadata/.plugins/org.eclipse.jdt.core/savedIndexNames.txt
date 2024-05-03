@@ -1,0 +1,2 @@
+INDEX VERSION 1.131+R:\Users\Ole\Projekte\AbstractSwarm\program\Agents\OwnAgent02\.metadata\.plugins\org.eclipse.jdt.core
+1865797976.index

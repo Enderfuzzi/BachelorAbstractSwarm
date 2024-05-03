@@ -1,0 +1,22 @@
+# Uebersicht ueber alle verfuegbaren Graphen und Agenten:
+
+# Graphen:
+
+1: MultiAgentShortestPaths.xml 
+2: PatientsCoordination.xml 
+3: Perspectives.lg.xml 
+4: ProductionSimulation.lg.xml 
+5: SchoolTimetabling.lg.xml 
+6: SimpleGraphExample.xml 
+7: TherapiesCoordination.xml 
+ 
+# Agenten:
+
+1: AgentDirPlaceEdgesReactiveMaxFreeSpace 
+2: AgentLearning 
+3: AgentRandom 
+4: AgentReactiveMaxFreeSpace 
+5: AgentReactiveMinDistance 
+6: AgentScala 
+7: OwnAgent01 
+8: OwnAgent02 

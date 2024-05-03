@@ -1,0 +1,6 @@
+AgentLearning,MultiAgentShortestPaths.xml,100,20
+AgentLearning,PatientsCoordination.xml,100,20
+AgentLearning,Perspectives.lg.xml,100,20
+AgentLearning,ProductionSimulation.lg.xml,100,20
+AgentLearning,SchoolTimetabling.lg.xml,100,20
+AgentLearning,TherapiesCoordination.xml,100,20

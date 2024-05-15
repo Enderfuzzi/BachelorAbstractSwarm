@@ -1,0 +1,14 @@
+random:0.5
+agent_frequency:0.5
+agent_distance_to_station:-0.25
+station_cpacity:0.25
+station_time:0.25
+station_space:0.5
+station_frequency:0.5
+station_type_components:0.25
+station_type_time:0.25
+station_type_space:0.25
+other_agent_selected_station:-0.25
+other_agent_time_to_arrival:0.25
+other_agent_value_of_station:0.25
+station_is_nearest:0.25

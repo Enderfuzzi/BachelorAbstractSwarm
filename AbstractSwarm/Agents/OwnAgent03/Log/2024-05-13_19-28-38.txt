@@ -1,0 +1,105 @@
+Round Time: 131
+Cell statistics:
+station_is_nearest:0.169371
+station_type_space:0.250000
+agent_frequency:0.512392
+station_frequency:0.682932
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.375628
+agent_distance_to_station:-0.314200
+station_type_components:0.250000
+random:0.354737
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 116
+Cell statistics:
+station_is_nearest:0.149060
+station_type_space:0.250000
+agent_frequency:0.663254
+station_frequency:0.817882
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.508844
+agent_distance_to_station:-0.354392
+station_type_components:0.250000
+random:0.395454
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 105
+Cell statistics:
+station_is_nearest:0.182094
+station_type_space:0.250000
+agent_frequency:0.645531
+station_frequency:0.702598
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.509346
+agent_distance_to_station:-0.454168
+station_type_components:0.250000
+random:0.455874
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 104
+Cell statistics:
+station_is_nearest:0.134388
+station_type_space:0.250000
+agent_frequency:0.573002
+station_frequency:0.441148
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.360312
+agent_distance_to_station:-0.299510
+station_type_components:0.250000
+random:0.552678
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 101
+Cell statistics:
+station_is_nearest:0.161861
+station_type_space:0.250000
+agent_frequency:0.709855
+station_frequency:0.409271
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.396727
+agent_distance_to_station:-0.247860
+station_type_components:0.250000
+random:0.353621
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 82
+Cell statistics:
+station_is_nearest:0.187665
+station_type_space:0.250000
+agent_frequency:0.939613
+station_frequency:0.480070
+other_agent_selected_station:-0.204553
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.458185
+agent_distance_to_station:-0.231800
+station_type_components:0.250000
+random:0.412496
+other_agent_value_of_station:0.246686
+-----------------------------------------
+Round Time: 68
+Cell statistics:
+station_is_nearest:0.227479
+station_type_space:0.250000
+agent_frequency:1.091459
+station_frequency:0.472699
+other_agent_selected_station:-0.269500
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.596182
+agent_distance_to_station:-0.314700
+station_type_components:0.250000
+random:0.321370
+other_agent_value_of_station:0.246602
+-----------------------------------------

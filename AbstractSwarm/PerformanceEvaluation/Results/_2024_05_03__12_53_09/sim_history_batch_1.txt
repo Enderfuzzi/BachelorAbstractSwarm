@@ -1,0 +1,2 @@
+AgentDirPlaceEdgesReactiveMaxFreeSpace,MultiAgentShortestPaths.xml,100,20
+AgentLearning,PatientsCoordination.xml,100,20

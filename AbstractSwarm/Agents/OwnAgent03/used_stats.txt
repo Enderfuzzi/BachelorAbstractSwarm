@@ -1,0 +1,7 @@
+station_type_time:0.500000
+station_type_space:0.500000
+station_type_components:0.500000
+random:0.708344
+station_frequency:0.486683
+agent_frequency:0.575354
+station_space:0.555291

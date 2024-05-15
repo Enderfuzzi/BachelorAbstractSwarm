@@ -1,0 +1,12 @@
+station_is_nearest:0.307868
+station_type_space:0.250000
+agent_frequency:1.142614
+station_frequency:0.202710
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.478055
+agent_distance_to_station:-0.348281
+station_type_components:0.250000
+random:0.651251
+other_agent_value_of_station:0.250000

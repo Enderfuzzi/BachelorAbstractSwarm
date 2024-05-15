@@ -1,0 +1,2 @@
+AgentRandom,MultiAgentShortestPaths.xml,100,20
+AgentRandom,PatientsCoordination.xml,100,20

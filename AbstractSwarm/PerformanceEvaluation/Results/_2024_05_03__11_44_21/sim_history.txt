@@ -1,0 +1,3 @@
+AgentLearning,MultiAgentShortestPaths.xml,100,20
+AgentLearning,PatientsCoordination.xml,100,20
+AgentLearning,TherapiesCoordination.xml,100,20

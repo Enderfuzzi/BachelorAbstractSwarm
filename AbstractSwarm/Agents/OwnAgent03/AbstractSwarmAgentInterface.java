@@ -568,6 +568,8 @@ class Cell {
 	
 	public void manipulateMutationFaktor(double value) {
 		lowMutateFaktor *= (1 - value);
+		if (lowMutateFaktor > overallMutateFaktor * 2) lowMutateFaktor = overallMutateFaktor * 2;
+		if (lowMutateFaktor < 0) lowMutateFaktor = 0.0;
 	}
 	
 	private void increaseNumberOfRuns() {

@@ -1,0 +1,75 @@
+Round Time: 106 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+station_is_nearest:0.250000
+station_type_space:0.250000
+agent_frequency:0.500000
+station_frequency:0.500000
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.500000
+agent_distance_to_station:-0.250000
+station_type_components:0.250000
+random:0.500000
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 98 | Round Number: 10 | Completed Rounds: 9
+Cell statistics:
+station_is_nearest:0.201002
+station_type_space:0.250000
+agent_frequency:0.596041
+station_frequency:0.457436
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.622816
+agent_distance_to_station:-0.363738
+station_type_components:0.250000
+random:0.467658
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 92 | Round Number: 63 | Completed Rounds: 57
+Cell statistics:
+station_is_nearest:0.192724
+station_type_space:0.250000
+agent_frequency:0.824155
+station_frequency:0.415303
+other_agent_selected_station:-0.188797
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.717056
+agent_distance_to_station:-0.548411
+station_type_components:0.250000
+random:0.345793
+other_agent_value_of_station:0.219434
+-----------------------------------------
+Round Time: 91 | Round Number: 66 | Completed Rounds: 59
+Cell statistics:
+station_is_nearest:0.237585
+station_type_space:0.250000
+agent_frequency:0.613126
+station_frequency:0.559886
+other_agent_selected_station:-0.170270
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.862232
+agent_distance_to_station:-0.682181
+station_type_components:0.250000
+random:0.381769
+other_agent_value_of_station:0.154637
+-----------------------------------------
+Round Time: 82 | Round Number: 68 | Completed Rounds: 61
+Cell statistics:
+station_is_nearest:0.307940
+station_type_space:0.250000
+agent_frequency:0.806554
+station_frequency:0.774640
+other_agent_selected_station:-0.177070
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.779491
+agent_distance_to_station:-0.538469
+station_type_components:0.250000
+random:0.544639
+other_agent_value_of_station:0.225766
+-----------------------------------------

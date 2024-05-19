@@ -203,7 +203,7 @@
         <tags>EditorStack</tags>
         <tags>active</tags>
         <children xsi:type="basic:Part" xmi:id="_8WCSGhQzEe-yl9HBgk5Kvg" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="AbstractSwarmAgentInterface.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;AbstractSwarmAgentInterface.java&quot; partName=&quot;AbstractSwarmAgentInterface.java&quot; title=&quot;AbstractSwarmAgentInterface.java&quot; tooltip=&quot;R:\Users\Ole\Projekte\BachelorAbstractSwarm\AbstractSwarm\Agents\OwnAgent03\AbstractSwarmAgentInterface.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.ide.FileStoreEditorInputFactory&quot; uri=&quot;file:/R:/Users/Ole/Projekte/BachelorAbstractSwarm/AbstractSwarm/Agents/OwnAgent03/AbstractSwarmAgentInterface.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;12549&quot; selectionTopPixel=&quot;4018&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;AbstractSwarmAgentInterface.java&quot; partName=&quot;AbstractSwarmAgentInterface.java&quot; title=&quot;AbstractSwarmAgentInterface.java&quot; tooltip=&quot;R:\Users\Ole\Projekte\BachelorAbstractSwarm\AbstractSwarm\Agents\OwnAgent03\AbstractSwarmAgentInterface.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.ide.FileStoreEditorInputFactory&quot; uri=&quot;file:/R:/Users/Ole/Projekte/BachelorAbstractSwarm/AbstractSwarm/Agents/OwnAgent03/AbstractSwarmAgentInterface.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;10674&quot; selectionTopPixel=&quot;3479&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
@@ -345,7 +345,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_8WCSdhQzEe-yl9HBgk5Kvg" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_2gTBMBUBEe-QgrzoHe4tIg" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_8WC-yxQzEe-yl9HBgk5Kvg"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_-T51cBXHEe-4ZrcERDcq9Q" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_8WC-yxQzEe-yl9HBgk5Kvg"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_8WCSgxQzEe-yl9HBgk5Kvg" elementId="group.edit" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -376,7 +376,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_8WCSzxQzEe-yl9HBgk5Kvg" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_2gVdcBUBEe-QgrzoHe4tIg" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_8WC-fxQzEe-yl9HBgk5Kvg"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_-T7qoBXHEe-4ZrcERDcq9Q" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_8WC-fxQzEe-yl9HBgk5Kvg"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_8WCS2xQzEe-yl9HBgk5Kvg" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>

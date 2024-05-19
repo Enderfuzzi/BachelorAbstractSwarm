@@ -1,0 +1,64 @@
+Round Time: 21 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+agent_frequency:0.500000
+agent_distance_to_station:-0.250000
+other_agent_selected_station:-0.250000
+other_agent_value_of_station:0.250000
+bold_visit_edge:1.500000
+station_frequency:0.500000
+station_is_nearest:0.250000
+station_type_space:0.250000
+station_type_time:0.250000
+random:0.500000
+station_type_components:0.250000
+station_space:0.500000
+other_agent_time_to_arrival:0.250000
+-----------------------------------------
+Round Time: 16 | Round Number: 6 | Completed Rounds: 5
+Cell statistics:
+agent_frequency:0.480771
+agent_distance_to_station:-0.226536
+other_agent_selected_station:-0.250000
+other_agent_value_of_station:0.250000
+bold_visit_edge:1.500000
+station_frequency:0.545821
+station_is_nearest:0.262424
+station_type_space:0.250000
+station_type_time:0.250000
+random:0.523419
+station_type_components:0.250000
+station_space:0.589942
+other_agent_time_to_arrival:0.250000
+-----------------------------------------
+Round Time: 11 | Round Number: 7 | Completed Rounds: 6
+Cell statistics:
+agent_frequency:0.535222
+agent_distance_to_station:-0.245197
+other_agent_selected_station:-0.250000
+other_agent_value_of_station:0.250000
+bold_visit_edge:1.500000
+station_frequency:0.553747
+station_is_nearest:0.313841
+station_type_space:0.250000
+station_type_time:0.250000
+random:0.573288
+station_type_components:0.250000
+station_space:0.682985
+other_agent_time_to_arrival:0.250000
+-----------------------------------------
+Round Time: 6 | Round Number: 46 | Completed Rounds: 45
+Cell statistics:
+agent_frequency:0.624866
+agent_distance_to_station:-0.223126
+other_agent_selected_station:-0.250000
+other_agent_value_of_station:0.250000
+bold_visit_edge:1.500000
+station_frequency:0.646337
+station_is_nearest:0.131182
+station_type_space:0.250000
+station_type_time:0.250000
+random:0.521685
+station_type_components:0.250000
+station_space:0.798041
+other_agent_time_to_arrival:0.250000
+-----------------------------------------

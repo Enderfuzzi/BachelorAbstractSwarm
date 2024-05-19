@@ -200,13 +200,8 @@ public class AbstractSwarmAgentInterface
 		if (time == 1 && last_number != 1) {
 			++numberOfRuns;
 			++runsSinceCurrentBest;
-			//System.out.println(String.format("Last Run time Unit: %d", round_time_unit));
-			//System.out.println(String.format("Last run completed: %b", lastRunCompleted));
 			if (lastRunCompleted) ++numberOfCompletedRuns;
-			
-			//System.out.println(String.format("Number of runs: %d", numberOfRuns));
-			//System.out.println(String.format("Number of completed runs: %d", numberOfCompletedRuns));
-			
+		
 			
 			if (lastRunCompleted && round_time_unit < lowestTimeUnit) {
 					//bestCells = new HashMap<Parameter, Cell>(currentCells);
@@ -245,7 +240,7 @@ public class AbstractSwarmAgentInterface
 			round_time_unit = 0;
 		}
 		last_number = time;
-		lastRunCompleted = possibleLastRun(stations);
+		lastRunCompleted = possibleLastRun(me, new ArrayList<Agent>(others.keySet()), stations);
 		if (round_time_unit < time) round_time_unit = time;
 		
 		
@@ -265,7 +260,7 @@ public class AbstractSwarmAgentInterface
 		result += currentCells.get(Parameter.STATION_SPACE).evaluate(station.space);
 		result += currentCells.get(Parameter.STATION_FREQUENCY).evaluate(station.frequency);
 		
-		if (numberOfCompletedRuns >= 50) {
+		if (numberOfCompletedRuns >= 30) {
 			List<Object[]> filteredCommunications = getCommunicationOfStation(others, station);
 			if (filteredCommunications.size() > 0) {
 				Object[] highestStationCommunication = filteredCommunications.get(0);
@@ -289,7 +284,7 @@ public class AbstractSwarmAgentInterface
 		
 
 		
-		
+		result += currentCells.get(Parameter.STATION_TYPE_TIME).evaluate(station.type.time);
 		
 		if (numberOfCompletedRuns >= 500) {
 			result += currentCells.get(Parameter.STATION_TYPE_COMPONENTS).evaluate(station.type.components.size());
@@ -301,11 +296,38 @@ public class AbstractSwarmAgentInterface
 			result += currentCells.get(Parameter.STATION_IS_NEAREST).evaluate(0.5);
 		}
 		
+		//System.out.println("Station: " + station.name);
+		List<Station> s = getUndirectedTimeConnectedStations(station);
+		//System.out.println("Time Conneced Stations: " + s);
+		for (Object ob : others.values()) {
+			if (ob == null) continue;
+			Object[] o = (Object[]) ob;
+			if (s.contains((Station) o[0])) {
+				result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate((Double) o[2]);
+			}
+		}
+		
+		if (isBoldEdge(me, station)) {
+			result += currentCells.get(Parameter.BOLD_VISIT_EDGE).evaluate(2);
+		}
+		
+		
+		if (isNeighbourStation(me, station)) {
+			result += currentCells.get(Parameter.STATION_IS_NEIGHBOUR).evaluate(0.5);
+		}
+		
+		if (numberOfCompletedRuns >= 30) {
+			result += currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).evaluate(estimatedWorkTimeLeft(me));
+		}
+	
 		
 		// if station has undirected time edge and is target = pref this station
 		
 		//int remainingVisits = remainingVisitsOfAStationType(me, me.previousTarget.type);
 		//if (remainingVisits > 0 && station.type == me.previousTarget.type) return 0.0;
+		
+		
+		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		
 		return result;
 	}
@@ -417,7 +439,7 @@ public class AbstractSwarmAgentInterface
 	
 	
 	
-	private static boolean possibleLastRun(List<Station> stations) {
+	private static boolean possibleLastRun(Agent me, List<Agent> others, List<Station> stations) {
 		boolean tmp = false;
 		for (Station station : stations) {
 			if (station.frequency >= 2) return false;
@@ -426,6 +448,17 @@ public class AbstractSwarmAgentInterface
 				tmp = true;
 			}
 		}
+		
+		others.add(me);
+		for (Agent agent : others) {
+			if (agent.frequency > 1) return false;
+			for (Map.Entry<Station, Integer> entry : agent.necessities.entrySet()) {
+				if (entry.getValue() > 1) return false;
+			}
+			
+			
+		}
+		
 		
 		return true;
 	}
@@ -495,7 +528,7 @@ public class AbstractSwarmAgentInterface
 		}
 		return true;
 	}
-	/*
+	
 	private static boolean isBoldEdge(Agent me, Station station) {
 		for (VisitEdge edge : station.type.visitEdges) {
 			if (edge.bold && (AgentType) edge.connectedType == me.type) return true;
@@ -503,6 +536,7 @@ public class AbstractSwarmAgentInterface
 		return false;
 	}
 	
+	/*
 	private static VisitEdge getBoldEdge(Agent me, Station station) {
 		for (VisitEdge edge : station.type.visitEdges) {
 			if (edge.bold && (AgentType) edge.connectedType == me.type) return edge;
@@ -510,6 +544,40 @@ public class AbstractSwarmAgentInterface
 		return null;
 	}
 	*/
+	
+	
+	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
+		List<Station> result = new ArrayList<>();
+		for (TimeEdge edge : station.type.timeEdges) {
+			if (edge.weight == 0) {
+				if (edge.connectedType instanceof StationType stationType) {
+						result.addAll(stationType.components);
+				}
+			}
+		}
+		return result;
+	}
+	
+	private static boolean isNeighbourStation(Agent me, Station station) {
+		if (me.previousTarget == null) return false;
+		for (PlaceEdge edge : me.previousTarget.type.placeEdges) {
+			if (edge.connectedType == station.type) return true;
+		}
+		return false;
+	}
+	
+	private static double estimatedWorkTimeLeft(Agent me) {
+		double result = 0.0;
+		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
+			if (entry.getValue() == 0) continue;
+			if (entry.getKey().type.time == -1) {
+				result += entry.getValue();
+			} else {
+				result += entry.getValue() * entry.getKey().type.time;
+			}
+		}
+		return result;
+	}
 	
 	
 	
@@ -637,6 +705,8 @@ enum Parameter {
 	AGENT_TIME("agent_time"),
 	AGENT_TARGET("agent_target"),
 	AGENT_VISITING("agent_visiting"),
+	AGENT_WORK_TIME_LEFT("agent_work_time_left"),
+	
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station"),
 	
@@ -646,7 +716,9 @@ enum Parameter {
 	
 	RANDOM("random"),
 	
+	STATION_IS_NEIGHBOUR("station_is_neighbour"),
 	STATION_IS_NEAREST("station_is_nearest"),
+	STATION_IS_TIME_CONNECTED("station_is_time_connected"),
 	
 	STATION_CAPACITY("station_capacity"),
 	STATION_SPACE("station_space"),

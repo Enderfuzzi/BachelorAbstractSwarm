@@ -12,3 +12,4 @@ other_agent_selected_station:-0.25
 other_agent_time_to_arrival:0.25
 other_agent_value_of_station:0.25
 station_is_nearest:0.25
+bold_visit_edge:1.5

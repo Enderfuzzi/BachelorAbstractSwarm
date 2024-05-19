@@ -1,0 +1,135 @@
+Round Time: 120 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+station_is_nearest:0.250000
+station_type_space:0.250000
+agent_frequency:0.500000
+station_frequency:0.500000
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.500000
+agent_distance_to_station:-0.250000
+station_type_components:0.250000
+random:0.500000
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 114 | Round Number: 12 | Completed Rounds: 10
+Cell statistics:
+station_is_nearest:0.283663
+station_type_space:0.250000
+agent_frequency:0.365442
+station_frequency:0.264027
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.599401
+agent_distance_to_station:-0.271676
+station_type_components:0.250000
+random:0.701409
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 109 | Round Number: 22 | Completed Rounds: 19
+Cell statistics:
+station_is_nearest:0.212245
+station_type_space:0.250000
+agent_frequency:0.524520
+station_frequency:0.384744
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.353054
+agent_distance_to_station:-0.245583
+station_type_components:0.250000
+random:0.748099
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 97 | Round Number: 34 | Completed Rounds: 30
+Cell statistics:
+station_is_nearest:0.315034
+station_type_space:0.250000
+agent_frequency:0.529932
+station_frequency:0.263507
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.359431
+agent_distance_to_station:-0.113283
+station_type_components:0.250000
+random:0.627012
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 91 | Round Number: 43 | Completed Rounds: 39
+Cell statistics:
+station_is_nearest:0.438178
+station_type_space:0.250000
+agent_frequency:0.380545
+station_frequency:0.365040
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.405726
+agent_distance_to_station:-0.160854
+station_type_components:0.250000
+random:0.765173
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 88 | Round Number: 48 | Completed Rounds: 44
+Cell statistics:
+station_is_nearest:0.407364
+station_type_space:0.250000
+agent_frequency:0.270543
+station_frequency:0.507910
+other_agent_selected_station:-0.250000
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.435115
+agent_distance_to_station:-0.176169
+station_type_components:0.250000
+random:0.662535
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 86 | Round Number: 57 | Completed Rounds: 53
+Cell statistics:
+station_is_nearest:0.550742
+station_type_space:0.250000
+agent_frequency:0.208652
+station_frequency:0.654390
+other_agent_selected_station:-0.461893
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.611198
+agent_distance_to_station:-0.160356
+station_type_components:0.250000
+random:0.350940
+other_agent_value_of_station:0.199039
+-----------------------------------------
+Round Time: 74 | Round Number: 62 | Completed Rounds: 58
+Cell statistics:
+station_is_nearest:0.489727
+station_type_space:0.250000
+agent_frequency:0.237578
+station_frequency:0.762751
+other_agent_selected_station:-0.362909
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.505513
+agent_distance_to_station:-0.206871
+station_type_components:0.250000
+random:0.258822
+other_agent_value_of_station:0.212111
+-----------------------------------------
+Round Time: 73 | Round Number: 88 | Completed Rounds: 83
+Cell statistics:
+station_is_nearest:0.082103
+station_type_space:0.250000
+agent_frequency:0.292476
+station_frequency:0.256355
+other_agent_selected_station:-0.254391
+station_type_time:0.250000
+other_agent_time_to_arrival:0.250000
+station_space:0.687115
+agent_distance_to_station:-0.026972
+station_type_components:0.250000
+random:0.064335
+other_agent_value_of_station:0.229538
+-----------------------------------------

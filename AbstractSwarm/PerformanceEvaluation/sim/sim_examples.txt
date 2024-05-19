@@ -61,4 +61,12 @@ OwnAgent02,ProductionSimulation.lg.xml,100,20
 OwnAgent02,SchoolTimetabling.lg.xml,100,20 
 OwnAgent02,SimpleGraphExample.xml,100,20 
 OwnAgent02,TherapiesCoordination.xml,100,20 
+_batch_end 
+OwnAgent03,MultiAgentShortestPaths.xml,100,20 
+OwnAgent03,PatientsCoordination.xml,100,20 
+OwnAgent03,Perspectives.lg.xml,100,20 
+OwnAgent03,ProductionSimulation.lg.xml,100,20 
+OwnAgent03,SchoolTimetabling.lg.xml,100,20 
+OwnAgent03,SimpleGraphExample.xml,100,20 
+OwnAgent03,TherapiesCoordination.xml,100,20 
 _sim_end 

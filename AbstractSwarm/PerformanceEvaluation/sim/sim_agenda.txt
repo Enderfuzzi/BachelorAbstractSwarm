@@ -1,3 +1,6 @@
 AgentLearning,PatientsCoordination.xml,100,20
+_batch_end 
 AgentRandom,PatientsCoordination.xml,100,20
+_batch_end 
+OwnAgent03,PatientsCoordination.xml,100,20
 _sim_end 

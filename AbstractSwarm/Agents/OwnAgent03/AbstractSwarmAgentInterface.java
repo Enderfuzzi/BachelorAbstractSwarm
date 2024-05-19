@@ -168,6 +168,10 @@ public class AbstractSwarmAgentInterface
 	private static boolean lastRunCompleted = false;
 	private static int numberOfRuns = 0;
 	private static int numberOfCompletedRuns = 0;
+	private static long runsSinceCurrentBest = 0L;
+	
+	private static List<VisitEdge> usedBoldEdges = new ArrayList<>();
+	
 	
 	/**
 	 * This method allows an agent to perceive its current state and to perform
@@ -195,38 +199,43 @@ public class AbstractSwarmAgentInterface
 		
 		if (time == 1 && last_number != 1) {
 			++numberOfRuns;
-			System.out.println(String.format("Last Run time Unit: %d", round_time_unit));
-			System.out.println(String.format("Last run completed: %b", lastRunCompleted));
+			++runsSinceCurrentBest;
+			//System.out.println(String.format("Last Run time Unit: %d", round_time_unit));
+			//System.out.println(String.format("Last run completed: %b", lastRunCompleted));
 			if (lastRunCompleted) ++numberOfCompletedRuns;
 			
-			System.out.println(String.format("Number of runs: %d", numberOfRuns));
-			System.out.println(String.format("Number of completed runs: %d", numberOfCompletedRuns));
+			//System.out.println(String.format("Number of runs: %d", numberOfRuns));
+			//System.out.println(String.format("Number of completed runs: %d", numberOfCompletedRuns));
 			
 			
 			if (lastRunCompleted && round_time_unit < lowestTimeUnit) {
 					//bestCells = new HashMap<Parameter, Cell>(currentCells);
 				for (Cell cell : currentCells.values()) {
 					if (cell.wasUsed()) cell.save();
+					cell.resetMutateFaktor();
 				}
 				
 				if (round_time_unit > 0) lowestTimeUnit = round_time_unit;
 					//listOfTimeValues.add(round_time_unit);
 				saveCells();
+				runsSinceCurrentBest = 0L;
 			}
 			
-			if (lastRunCompleted && round_time_unit * 1.5 > lowestTimeUnit) {
+			if (runsSinceCurrentBest != 0L && runsSinceCurrentBest % 5 == 0) {
 				for (Cell cell : currentCells.values()) {
-					cell.manipulateMutationFaktor(cell.getBestWeight() - cell.getCurrentWeight());
+					cell.manipulateMutateFaktor(0.3);
 				}
 			}
 			
 			
-			System.out.println(String.format("Current minimum time unit: %d", lowestTimeUnit));
+			//System.out.println(String.format("Current minimum time unit: %d", lowestTimeUnit));
+			
+			printStatus();
 			
 			//currentCells = new HashMap<Parameter, Cell>(bestCells);
-			System.out.println("Cells for this round: ");
+			//System.out.println("Cells for this round: ");
 			for (Cell cell : currentCells.values()) {
-				System.out.println(cell);
+				//System.out.println(cell);
 				if (!cell.wasUsed()) continue;
 				cell.reset();
 				cell.mutate();
@@ -284,18 +293,19 @@ public class AbstractSwarmAgentInterface
 		
 		if (numberOfCompletedRuns >= 500) {
 			result += currentCells.get(Parameter.STATION_TYPE_COMPONENTS).evaluate(station.type.components.size());
-			result += currentCells.get(Parameter.STATION_TYPE_TIME).evaluate(station.type.time);
-			result += currentCells.get(Parameter.STATION_TYPE_SPACE).evaluate(station.type.space);
+			//result += currentCells.get(Parameter.STATION_TYPE_TIME).evaluate(station.type.time);
+			//result += currentCells.get(Parameter.STATION_TYPE_SPACE).evaluate(station.type.space);
 		}
 		
 		if (isNearestStation(me, station)) {
 			result += currentCells.get(Parameter.STATION_IS_NEAREST).evaluate(0.5);
 		}
 		
+		
+		// if station has undirected time edge and is target = pref this station
+		
 		//int remainingVisits = remainingVisitsOfAStationType(me, me.previousTarget.type);
 		//if (remainingVisits > 0 && station.type == me.previousTarget.type) return 0.0;
-		
-		
 		
 		return result;
 	}
@@ -383,7 +393,6 @@ public class AbstractSwarmAgentInterface
 	
 	
 	private static void saveLog() {
-		System.out.println("Save Log");
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_STATS, true));
 			
@@ -486,18 +495,47 @@ public class AbstractSwarmAgentInterface
 		}
 		return true;
 	}
+	/*
+	private static boolean isBoldEdge(Agent me, Station station) {
+		for (VisitEdge edge : station.type.visitEdges) {
+			if (edge.bold && (AgentType) edge.connectedType == me.type) return true;
+		}
+		return false;
+	}
+	
+	private static VisitEdge getBoldEdge(Agent me, Station station) {
+		for (VisitEdge edge : station.type.visitEdges) {
+			if (edge.bold && (AgentType) edge.connectedType == me.type) return edge;
+		}
+		return null;
+	}
+	*/
+	
+	
 	
 	private static String generateTimeStamp() {
 		return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
 	}
 	
+	private static void printStatus() {
+		System.out.println("#################################################################################################################################");
+		System.out.println(String.format("Last run time unit: %d | Last run completed: %b | Current best time unit: %d", round_time_unit, lastRunCompleted, lowestTimeUnit));
+		System.out.println(String.format("Number of runs: %d | Number of completed runs: %d | Runs since best: %d",numberOfRuns, numberOfCompletedRuns, runsSinceCurrentBest));
+		System.out.println("Cells for this round: ");
+		for (Cell cell : currentCells.values()) {
+			System.out.println(cell);
+		}
+	}
 }
 
 
 class Cell {
 	private static Random generator = new Random();
-	private double overallMutateFaktor = 0.4;
-	private double lowMutateFaktor = overallMutateFaktor;
+	
+	private double initialMutateFaktor = 0.2;
+	private double mutateFaktor = initialMutateFaktor;
+	
+	
 	
 	private double weight;
 	private double initialWeight;
@@ -520,7 +558,7 @@ class Cell {
 	}
 
 	public void mutate() {
-		weight += weight * (generator.nextDouble(overallMutateFaktor * 2) - lowMutateFaktor);
+		weight += weight * (generator.nextDouble(mutateFaktor * 2) - mutateFaktor);
 	}
 
 	public void reset() {
@@ -530,7 +568,6 @@ class Cell {
 	
 	public void save() {
 		this.initialWeight = weight;
-		this.lowMutateFaktor = overallMutateFaktor;
 	}
 	
 	public String fileRepresentation() {
@@ -557,19 +594,20 @@ class Cell {
 		return weight;
 	}
 	
-	
-	public double getOverallMutateFaktor() {
-		return overallMutateFaktor;
+	public double getCurrentMutateFaktor() {
+		return mutateFaktor;
 	}
 	
-	public double getLowMutateFaktor() {
-		return lowMutateFaktor;
+	public double getInitialMutateFaktor() {
+		return initialMutateFaktor;
 	}
 	
-	public void manipulateMutationFaktor(double value) {
-		lowMutateFaktor *= (1 - value);
-		if (lowMutateFaktor > overallMutateFaktor * 2) lowMutateFaktor = overallMutateFaktor * 2;
-		if (lowMutateFaktor < 0) lowMutateFaktor = 0.0;
+	public void manipulateMutateFaktor(double faktor) {
+		this.mutateFaktor += this.initialMutateFaktor * faktor;
+	}
+	
+	public void resetMutateFaktor() {
+		this.mutateFaktor = this.initialMutateFaktor;
 	}
 	
 	private void increaseNumberOfRuns() {
@@ -579,8 +617,8 @@ class Cell {
 	
 	@Override
 	public String toString() {
-		return String.format(Locale.US,"[%s: %s with current weight: %f and initial weight: %f| Mutate Faktor: %f Low Mutate Faktor: %f]", 
-				this.getClass().getSimpleName(), key, weight, initialWeight, overallMutateFaktor, lowMutateFaktor);
+		return String.format(Locale.US,"[%s: %s with current weight: %f and best weight: %f | Mutate Faktor: %f]", 
+				this.getClass().getSimpleName(), key, weight, initialWeight, mutateFaktor);
 	}
 }
 
@@ -592,6 +630,8 @@ enum Parameter {
 			return true;
 		}
 	},
+	
+	BOLD_VISIT_EDGE("bold_visit_edge"),
 	
 	AGENT_FREQUENCY("agent_frequency"),
 	AGENT_TIME("agent_time"),

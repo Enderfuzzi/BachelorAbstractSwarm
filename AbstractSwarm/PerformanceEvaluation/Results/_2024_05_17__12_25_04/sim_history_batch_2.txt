@@ -1,0 +1,1 @@
+AgentRandom,PatientsCoordination.xml,100,20

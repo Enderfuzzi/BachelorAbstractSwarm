@@ -1,0 +1,19 @@
+Round Time: 62 | Round Number: 44 | Completed Rounds: 1
+Cell statistics:
+agent_frequency:0.165712
+agent_distance_to_station:-0.345507
+station_is_time_connected:2.072269
+other_agent_selected_station:-0.250000
+other_agent_value_of_station:0.250000
+bold_visit_edge:1.857034
+station_frequency:0.213317
+station_is_nearest:0.382478
+station_type_space:0.250000
+station_type_time:-0.088883
+random:0.767573
+station_type_components:0.250000
+agent_work_time_left:0.250000
+station_is_neighbour:0.321547
+station_space:0.179633
+other_agent_time_to_arrival:0.250000
+-----------------------------------------

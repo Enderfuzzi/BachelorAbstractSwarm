@@ -1,0 +1,76 @@
+Round Time: 151 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+station_is_nearest:0.250000
+station_is_time_connected:2.000000
+agent_frequency:0.500000
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.500000
+agent_work_time_left:0.250000
+station_type_time:-0.100000
+other_agent_time_to_arrival:0.250000
+random:0.500000
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.500000
+bold_visit_edge:1.500000
+station_space:0.500000
+agent_distance_to_station:-0.250000
+station_type_components:0.250000
+-----------------------------------------
+Round Time: 132 | Round Number: 3 | Completed Rounds: 2
+Cell statistics:
+station_is_nearest:0.279159
+station_is_time_connected:1.938519
+agent_frequency:0.593627
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.405279
+agent_work_time_left:0.250000
+station_type_time:-0.116043
+other_agent_time_to_arrival:0.250000
+random:0.592807
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.442670
+bold_visit_edge:1.500000
+station_space:0.509041
+agent_distance_to_station:-0.235389
+station_type_components:0.250000
+-----------------------------------------
+Round Time: 129 | Round Number: 5 | Completed Rounds: 4
+Cell statistics:
+station_is_nearest:0.334652
+station_is_time_connected:2.253494
+agent_frequency:0.557492
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.368426
+agent_work_time_left:0.250000
+station_type_time:-0.120452
+other_agent_time_to_arrival:0.250000
+random:0.507502
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.441179
+bold_visit_edge:1.500000
+station_space:0.426848
+agent_distance_to_station:-0.244334
+station_type_components:0.250000
+-----------------------------------------
+Round Time: 112 | Round Number: 8 | Completed Rounds: 7
+Cell statistics:
+station_is_nearest:0.331286
+station_is_time_connected:2.395658
+agent_frequency:0.452876
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.391295
+agent_work_time_left:0.250000
+station_type_time:-0.099304
+other_agent_time_to_arrival:0.250000
+random:0.417424
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.377280
+bold_visit_edge:1.500000
+station_space:0.397321
+agent_distance_to_station:-0.267557
+station_type_components:0.250000
+-----------------------------------------

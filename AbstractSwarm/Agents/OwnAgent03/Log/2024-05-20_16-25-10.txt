@@ -1,0 +1,57 @@
+Round Time: 141 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+station_is_nearest:0.250000
+station_is_time_connected:2.000000
+agent_frequency:0.500000
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.500000
+agent_work_time_left:0.250000
+station_type_time:-0.100000
+other_agent_time_to_arrival:0.250000
+random:0.500000
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.500000
+bold_visit_edge:1.500000
+station_space:0.500000
+agent_distance_to_station:-0.250000
+station_type_components:0.250000
+-----------------------------------------
+Round Time: 122 | Round Number: 3 | Completed Rounds: 2
+Cell statistics:
+station_is_nearest:0.200326
+station_is_time_connected:2.025356
+agent_frequency:0.423876
+other_agent_selected_station:-0.250000
+station_is_neighbour:0.570764
+agent_work_time_left:0.250000
+station_type_time:-0.098877
+other_agent_time_to_arrival:0.250000
+random:0.549405
+other_agent_value_of_station:0.250000
+station_type_space:0.250000
+station_frequency:0.438383
+bold_visit_edge:1.500000
+station_space:0.464498
+agent_distance_to_station:-0.217115
+station_type_components:0.250000
+-----------------------------------------
+Round Time: 119 | Round Number: 52 | Completed Rounds: 48
+Cell statistics:
+station_is_nearest:0.183938
+station_is_time_connected:1.406237
+agent_frequency:0.357105
+other_agent_selected_station:-0.233651
+station_is_neighbour:0.517638
+agent_work_time_left:0.070252
+station_type_time:-0.038380
+other_agent_time_to_arrival:0.250000
+random:0.588495
+other_agent_value_of_station:0.239648
+station_type_space:0.250000
+station_frequency:0.396676
+bold_visit_edge:1.500000
+station_space:0.319267
+agent_distance_to_station:-0.327477
+station_type_components:0.250000
+-----------------------------------------

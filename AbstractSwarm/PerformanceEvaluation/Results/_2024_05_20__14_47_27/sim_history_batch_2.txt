@@ -1,0 +1,8 @@
+AgentRandom,Crossroads.xml,100,20
+AgentRandom,Delivery.xml,100,20
+AgentRandom,PatientsCoordination.xml,100,20
+AgentRandom,Storage.xml,100,20
+AgentRandom,Treatment.xml,100,20
+AgentRandom,Ward_Round.xml,100,20
+AgentRandom,X-Ray_Scheduling.xml,100,20
+AgentRandom,X-Ray_Scheduling_2.xml,100,20

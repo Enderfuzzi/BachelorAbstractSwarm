@@ -1,0 +1,8 @@
+AgentLearning,Crossroads.xml,100,20
+AgentLearning,Delivery.xml,100,20
+AgentLearning,PatientsCoordination.xml,100,20
+AgentLearning,Storage.xml,100,20
+AgentLearning,Treatment.xml,100,20
+AgentLearning,Ward_Round.xml,100,20
+AgentLearning,X-Ray_Scheduling.xml,100,20
+AgentLearning,X-Ray_Scheduling_2.xml,100,20

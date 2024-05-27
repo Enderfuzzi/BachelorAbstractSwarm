@@ -2,13 +2,20 @@
 
 # Graphen:
 
-1: MultiAgentShortestPaths.xml 
-2: PatientsCoordination.xml 
-3: Perspectives.lg.xml 
-4: ProductionSimulation.lg.xml 
-5: SchoolTimetabling.lg.xml 
-6: SimpleGraphExample.xml 
-7: TherapiesCoordination.xml 
+1: Crossroads.xml 
+2: Delivery.xml 
+3: MultiAgentShortestPaths.xml 
+4: PatientsCoordination.xml 
+5: Perspectives.lg.xml 
+6: ProductionSimulation.lg.xml 
+7: SchoolTimetabling.lg.xml 
+8: SimpleGraphExample.xml 
+9: Storage.xml 
+10: TherapiesCoordination.xml 
+11: Treatment.xml 
+12: Ward_Round.xml 
+13: X-Ray_Scheduling.xml 
+14: X-Ray_Scheduling_2.xml 
  
 # Agenten:
 

@@ -148,6 +148,8 @@ public class AbstractSwarmAgentInterface
 
 	private final static String INITIAL_STATS = "initial_stats.txt";
 	private final static String BEST_STATS = "best_stats.txt";
+	private final static String OPTIMIZED_PARAMETERS = "optimized_parameters.txt";
+	private final static String SAVED_PARAMETERS = "saved_parameters.txt";
 	private final static String LOG_DIRECTORY = String.format("Log%s", System.getProperty("file.separator"));
 	private final static String LOG_STATS = String.format("%s%s.txt", LOG_DIRECTORY, generateTimeStamp());
 
@@ -194,7 +196,16 @@ public class AbstractSwarmAgentInterface
 		if (firstCall) {
 			firstCall = false;
 			loadCells();
-			//bestCells = new HashMap<>(currentCells);		
+			
+			if (!graphHasTimeEdges(stations)) {
+				currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).disableCell();
+			}
+			
+			if (!graphHasBoldVisitEdge(stations)) {
+				currentCells.get(Parameter.BOLD_VISIT_EDGE).disableCell();
+			}
+			
+			
 		}
 		
 		if (time == 1 && last_number != 1) {
@@ -203,15 +214,21 @@ public class AbstractSwarmAgentInterface
 			if (lastRunCompleted) ++numberOfCompletedRuns;
 		
 			
+			if (numberOfRuns == 100) {
+				saveBestParameters();
+			}
+			
+			
 			if (lastRunCompleted && round_time_unit < lowestTimeUnit) {
-					//bestCells = new HashMap<Parameter, Cell>(currentCells);
 				for (Cell cell : currentCells.values()) {
-					if (cell.wasUsed()) cell.save();
+					cell.saveStatus();
+					if (cell.wasUsed()) {
+						cell.save();
+					}
 					cell.resetMutateFaktor();
 				}
 				
 				if (round_time_unit > 0) lowestTimeUnit = round_time_unit;
-					//listOfTimeValues.add(round_time_unit);
 				saveCells();
 				runsSinceCurrentBest = 0L;
 			}
@@ -223,16 +240,12 @@ public class AbstractSwarmAgentInterface
 			}
 			
 			
-			//System.out.println(String.format("Current minimum time unit: %d", lowestTimeUnit));
-			
 			printStatus();
 			
-			//currentCells = new HashMap<Parameter, Cell>(bestCells);
-			//System.out.println("Cells for this round: ");
 			for (Cell cell : currentCells.values()) {
-				//System.out.println(cell);
 				if (!cell.wasUsed()) continue;
-				cell.reset();
+				if (!cell.isEnabled()) continue;
+ 				cell.reset();
 				cell.mutate();
 				cell.resetUseage();
 			}
@@ -243,6 +256,16 @@ public class AbstractSwarmAgentInterface
 		lastRunCompleted = possibleLastRun(me, new ArrayList<Agent>(others.keySet()), stations);
 		if (round_time_unit < time) round_time_unit = time;
 		
+		if (random.nextDouble() > 0.3) currentCells.get(Parameter.STATION_IS_NEIGHBOUR).disableCell();
+		else currentCells.get(Parameter.STATION_IS_NEIGHBOUR).enableCell();
+		
+		
+		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).disableCell();
+		else currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).enableCell();
+		
+		
+		
+		
 		
 		double result = 0.0;
 		
@@ -250,11 +273,25 @@ public class AbstractSwarmAgentInterface
 		
 		result += currentCells.get(Parameter.AGENT_FREQUENCY).evaluate(me.frequency);
 
-		if (me.previousTarget != null) {
-			int pathCost = pathCost(me.previousTarget.type, station.type);
-			result += currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).evaluate(pathCost);
-			
+		if (currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).isEnabled()) {
+			int pathCost = Integer.MAX_VALUE;
+			if (me.previousTarget != null) {
+				pathCost = pathCost(me.previousTarget.type, station.type);
+				
+			} else {
+				for (VisitEdge edge : me.type.visitEdges) {
+					if (!edge.bold) continue;
+					int tmpValue = pathCost((StationType) edge.connectedType, station.type);
+					if (tmpValue < pathCost) pathCost = tmpValue;
+				}
+			}
+			//System.out.println(String.format("Agent %s to station %s has cost: %d", me.name, station.name, pathCost));
+			if (pathCost != Integer.MAX_VALUE) {
+				result += currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).evaluate(pathCost);
+			}
 		}
+		
+		
 		
 		
 		result += currentCells.get(Parameter.STATION_SPACE).evaluate(station.space);
@@ -271,7 +308,7 @@ public class AbstractSwarmAgentInterface
 				}
 				
 				result += currentCells.get(Parameter.OTHER_AGENT_SELECTED_STATION).evaluate(filteredCommunications.size());
-				//result += currentCells.get(Parameter.OTHER_AGENT_TIME_TO_ARRIVAL).evaluate(((Long)highestStationCommunication[1] == 0L ? 1.0 : 1 / highestStationCommunication[1]);
+
 				if (me.previousTarget != null && (long) highestStationCommunication[1] > (long) (time + pathCost(me.previousTarget.type, station.type))) {
 					result += currentCells.get(Parameter.OTHER_AGENT_VALUE_OF_STATION).evaluate((Double) highestStationCommunication[2]);
 				}
@@ -296,27 +333,31 @@ public class AbstractSwarmAgentInterface
 			result += currentCells.get(Parameter.STATION_IS_NEAREST).evaluate(0.5);
 		}
 		
-		//System.out.println("Station: " + station.name);
-		List<Station> s = getUndirectedTimeConnectedStations(station);
-		//System.out.println("Time Conneced Stations: " + s);
-		for (Object ob : others.values()) {
-			if (ob == null) continue;
-			Object[] o = (Object[]) ob;
-			if (s.contains((Station) o[0])) {
-				result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate((Double) o[2]);
+		if (currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).isEnabled()) {
+			List<Station> s = getUndirectedTimeConnectedStations(station);
+			for (Object ob : others.values()) {
+				if (ob == null) continue;
+				Object[] o = (Object[]) ob;
+				if (s.contains((Station) o[0])) {
+					result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate((Double) o[2]);
+				}
 			}
 		}
 		
-		if (isBoldEdge(me, station)) {
-			result += currentCells.get(Parameter.BOLD_VISIT_EDGE).evaluate(2);
+		if (currentCells.get(Parameter.BOLD_VISIT_EDGE).isEnabled()) {
+			if (isBoldEdge(me, station)) {
+				result += currentCells.get(Parameter.BOLD_VISIT_EDGE).evaluate(2);
+			}
 		}
 		
-		
+
 		if (isNeighbourStation(me, station)) {
 			result += currentCells.get(Parameter.STATION_IS_NEIGHBOUR).evaluate(0.5);
 		}
 		
-		if (numberOfCompletedRuns >= 30) {
+
+		
+		if (currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).isEnabled()) {
 			result += currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).evaluate(estimatedWorkTimeLeft(me));
 		}
 	
@@ -438,6 +479,166 @@ public class AbstractSwarmAgentInterface
 	}
 	
 	
+	private static void saveBestParameters() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(SAVED_PARAMETERS));
+			
+			List<String> result = new ArrayList<String>();
+			String line;
+			
+
+			List<String> parameterResult = new ArrayList<String>();
+			
+
+			
+			while ((line = reader.readLine()) != null) {
+				double avgValue = 0.0;
+				
+				StringBuilder savedParameters = new StringBuilder();
+				StringBuilder builder = new StringBuilder();
+				
+				String[] splited = line.split(";");
+				Parameter parameter = Parameter.getParameter(splited[0]);
+				
+				if (parameter.isDefault()) continue;
+				
+				/*
+				builder.append("|Cell: ");
+				builder.append(parameter.getRepresentation());
+				*/
+				
+				double value = 0.0;
+				for (int i = 0;i < splited.length; i++) {
+					savedParameters.append(splited[i]);
+					savedParameters.append(";");
+					
+					try {
+						if (i != 0) avgValue += Double.parseDouble(splited[i]);
+					} catch (NumberFormatException e) {
+						//TODO add format exception handling
+					}
+				}
+				
+				int numberOfParameters = 0;
+				
+				if (currentCells.get(parameter).isEnabled()) {
+					savedParameters.append(currentCells.get(parameter).getBestWeight());
+					
+					avgValue += currentCells.get(parameter).getBestWeight();
+					numberOfParameters = splited.length;	
+				} else {
+					numberOfParameters = splited.length - 1;
+				}
+				
+				avgValue /= numberOfParameters;
+				
+				builder.append(String.format(Locale.US,"|Cell: %s\n|Used Parameters: %d\n|Avg Value: %f\n", parameter.getRepresentation(), numberOfParameters, avgValue));
+				/*
+				builder.append("\n|Used Paarameters: ");
+				builder.append(numberOfParameters);
+				builder.append("\n|Avg Value: ");
+				builder.append(avgValue);
+				builder.append("\n");
+				*/
+				result.add(builder.toString());
+				parameterResult.add(savedParameters.toString());
+			}
+			
+			reader.close();
+			
+			BufferedWriter writer = new BufferedWriter(new FileWriter(SAVED_PARAMETERS));
+			
+			for (String writeLine : parameterResult) {
+				writer.write(writeLine);
+				writer.newLine();
+				writer.newLine();
+			}
+			
+			writer.flush();
+			writer.close();
+			
+			writer = new BufferedWriter(new FileWriter(OPTIMIZED_PARAMETERS));
+			
+			for (String writeLine : result) {
+				writer.write(writeLine);
+				writer.newLine();
+			}
+			
+			writer.flush();
+			writer.close();
+			
+			
+			
+			
+				/*
+				
+				StringBuilder builder = new StringBuilder();
+				builder.append(parameter.getRepresentation());
+				builder.append(";");
+				
+				if (!currentCells.get(parameter).isBestStatusEnabled()) {
+					for (int i = 1; i < splited.length; i++) {
+						builder.append(splited[i]);
+						if (i != splited.length - 1) builder.append(";");
+					}
+					result.add(builder.toString());
+					continue;
+				}
+				
+				
+				int used = 0;
+				try {
+					used = Integer.parseInt(splited[1]);
+				} catch (NumberFormatException e) {
+					//TODO add format exception handling
+				}
+				double currentValue = 0.0;
+				int numberOfValues = used;
+				for (int i = 3;i < splited.length; i++) {
+					try {
+						currentValue += Double.parseDouble(splited[i]);
+					} catch (NumberFormatException e) {
+						//TODO add format exception handling
+					}
+				}
+				
+				currentValue += currentCells.get(parameter).getBestWeight();
+				System.out.println("Current Value: " + currentValue);
+				currentValue /= ++numberOfValues;
+				builder.append(numberOfValues);
+				builder.append(";");
+				builder.append(currentValue);
+				builder.append(";");
+				for (int i = 3; i < splited.length; i++) {
+					builder.append(splited[i]);
+					builder.append(";");
+				}
+				builder.append(currentCells.get(parameter).getBestWeight());
+				result.add(builder.toString());
+				
+			}
+			reader.close();
+			
+			BufferedWriter writer = new BufferedWriter(new FileWriter(OPTIMIZED_PARAMETERS));
+			
+			for (String writeLine : result) {
+				writer.write(writeLine);
+				writer.newLine();
+			}
+			
+			writer.flush();
+			writer.close();
+			*/
+		} catch (IOException e) {
+			System.out.print("Error on writing optimized parameters");
+			
+			
+			
+			
+		}
+	}
+	
+	
 	
 	private static boolean possibleLastRun(Agent me, List<Agent> others, List<Station> stations) {
 		boolean tmp = false;
@@ -496,6 +697,7 @@ public class AbstractSwarmAgentInterface
 			}
 			
 			for (PlaceEdge edge : current.station().placeEdges) {
+				if (edge.incoming) continue;
 				queue.add(new Pair((StationType) edge.connectedType, current.cost() + edge.weight));
 			}
 			
@@ -579,6 +781,22 @@ public class AbstractSwarmAgentInterface
 		return result;
 	}
 	
+	private static boolean graphHasTimeEdges(List<Station> stations) {
+		for (Station station : stations) {
+			if (station.type.timeEdges.size() > 0) return true;
+		}
+		return false;
+	}
+	
+	private static boolean graphHasBoldVisitEdge(List<Station> stations) {
+		for (Station station : stations) {
+			for (VisitEdge edge : station.type.visitEdges) {
+				if (edge.bold) return true;
+			}
+		}
+		return false;
+	}
+	
 	
 	
 	private static String generateTimeStamp() {
@@ -604,7 +822,6 @@ class Cell {
 	private double mutateFaktor = initialMutateFaktor;
 	
 	
-	
 	private double weight;
 	private double initialWeight;
 	private String key;
@@ -612,14 +829,27 @@ class Cell {
 	
 	private long numberOfRuns = 0L;
 	
+	public enum Status {
+		ENABLED,
+		DISABLED;
+	}
+	
+	private Status status;
+	private Status bestRunStatus;
+	
+	
 	public Cell(String key, double weight) {
 		this.key = key;
 		this.weight = weight;
 		this.initialWeight = weight;
 		this.used = false;
+		this.status = Cell.Status.ENABLED;
+		this.bestRunStatus = Cell.Status.ENABLED;
 	}
 
 	public double evaluate(double input) {
+		if (status == Cell.Status.DISABLED) return 0.0;
+		
 		used = true;
 		if (input < 0) input = 1.0;
 		return weight * input;
@@ -683,10 +913,34 @@ class Cell {
 		//if (numberOfRuns % 10 == 0) mutateFaktor *= 0.8;
 	}
 	
+	public Status getStatus() {
+		return this.status;
+	}
+	
+	public void enableCell() {
+		this.status = Cell.Status.ENABLED;
+	}
+	
+	public void disableCell() {
+		this.status = Cell.Status.DISABLED;
+	}
+	
+	public boolean isEnabled() {
+		return this.status == Cell.Status.ENABLED;
+	}
+	
+	public void saveStatus() {
+		this.bestRunStatus = this.status;
+	}
+	
+	public boolean isBestStatusEnabled() {
+		return this.bestRunStatus == Cell.Status.ENABLED;
+	}
+	
 	@Override
 	public String toString() {
-		return String.format(Locale.US,"[%s: %s with current weight: %f and best weight: %f | Mutate Faktor: %f]", 
-				this.getClass().getSimpleName(), key, weight, initialWeight, mutateFaktor);
+		return String.format(Locale.US,"[%s: %s with current weight: %f and best weight: %f | Mutate Faktor: %f | Status: %s]", 
+				this.getClass().getSimpleName(), key, weight, initialWeight, mutateFaktor, status.name());
 	}
 }
 
@@ -706,6 +960,7 @@ enum Parameter {
 	AGENT_TARGET("agent_target"),
 	AGENT_VISITING("agent_visiting"),
 	AGENT_WORK_TIME_LEFT("agent_work_time_left"),
+	AGENT_PRIORITY("agent_priority"),
 	
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station"),

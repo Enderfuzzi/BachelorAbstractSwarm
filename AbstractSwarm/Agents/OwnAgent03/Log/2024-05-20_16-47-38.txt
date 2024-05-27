@@ -1,0 +1,133 @@
+Round Time: 101 | Round Number: 2 | Completed Rounds: 1
+Cell statistics:
+other_agent_selected_station:-0.250000
+random:0.500000
+agent_distance_to_station:-0.250000
+other_agent_time_to_arrival:0.250000
+station_frequency:0.500000
+agent_frequency:0.500000
+agent_work_time_left:0.250000
+station_space:0.500000
+station_is_nearest:0.250000
+station_type_time:-0.100000
+station_is_neighbour:0.500000
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:1.500000
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 76 | Round Number: 32 | Completed Rounds: 31
+Cell statistics:
+other_agent_selected_station:-0.250000
+random:0.568614
+agent_distance_to_station:-0.180268
+other_agent_time_to_arrival:0.250000
+station_frequency:0.473983
+agent_frequency:0.437061
+agent_work_time_left:0.250000
+station_space:0.520690
+station_is_nearest:0.331213
+station_type_time:-0.140993
+station_is_neighbour:0.368564
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:1.228450
+other_agent_value_of_station:0.250000
+-----------------------------------------
+Round Time: 66 | Round Number: 35 | Completed Rounds: 34
+Cell statistics:
+other_agent_selected_station:-0.282842
+random:0.644490
+agent_distance_to_station:-0.201760
+other_agent_time_to_arrival:0.250000
+station_frequency:0.386967
+agent_frequency:0.378366
+agent_work_time_left:0.245698
+station_space:0.429246
+station_is_nearest:0.380377
+station_type_time:-0.160205
+station_is_neighbour:0.345640
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:1.110648
+other_agent_value_of_station:0.269947
+-----------------------------------------
+Round Time: 56 | Round Number: 37 | Completed Rounds: 36
+Cell statistics:
+other_agent_selected_station:-0.275808
+random:0.772929
+agent_distance_to_station:-0.233471
+other_agent_time_to_arrival:0.250000
+station_frequency:0.395558
+agent_frequency:0.357007
+agent_work_time_left:0.202376
+station_space:0.488723
+station_is_nearest:0.321592
+station_type_time:-0.149337
+station_is_neighbour:0.393023
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:0.891611
+other_agent_value_of_station:0.227376
+-----------------------------------------
+Round Time: 51 | Round Number: 61 | Completed Rounds: 60
+Cell statistics:
+other_agent_selected_station:-0.359034
+random:0.556507
+agent_distance_to_station:-0.158074
+other_agent_time_to_arrival:0.250000
+station_frequency:0.445267
+agent_frequency:0.498596
+agent_work_time_left:0.217877
+station_space:0.682222
+station_is_nearest:0.325405
+station_type_time:-0.124895
+station_is_neighbour:0.257347
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:0.839570
+other_agent_value_of_station:0.309287
+-----------------------------------------
+Round Time: 46 | Round Number: 73 | Completed Rounds: 72
+Cell statistics:
+other_agent_selected_station:-0.411123
+random:0.460615
+agent_distance_to_station:-0.119176
+other_agent_time_to_arrival:0.250000
+station_frequency:0.350294
+agent_frequency:0.484870
+agent_work_time_left:0.208350
+station_space:0.896233
+station_is_nearest:0.424673
+station_type_time:-0.134439
+station_is_neighbour:0.181756
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:0.609208
+other_agent_value_of_station:0.352587
+-----------------------------------------
+Round Time: 41 | Round Number: 79 | Completed Rounds: 78
+Cell statistics:
+other_agent_selected_station:-0.513262
+random:0.454621
+agent_distance_to_station:-0.088473
+other_agent_time_to_arrival:0.250000
+station_frequency:0.314578
+agent_frequency:0.391076
+agent_work_time_left:0.248052
+station_space:0.835305
+station_is_nearest:0.440482
+station_type_time:-0.129505
+station_is_neighbour:0.228368
+station_type_components:0.250000
+station_is_time_connected:2.000000
+station_type_space:0.250000
+bold_visit_edge:0.495848
+other_agent_value_of_station:0.355286
+-----------------------------------------

@@ -30,6 +30,7 @@ import java.lang.NumberFormatException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -264,7 +265,7 @@ public class AbstractSwarmAgentInterface
 		else currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).enableCell();
 		
 		
-		
+		//TODO Distribution factor
 		
 		
 		double result = 0.0;
@@ -275,16 +276,29 @@ public class AbstractSwarmAgentInterface
 
 		if (currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).isEnabled()) {
 			int pathCost = Integer.MAX_VALUE;
-			if (me.previousTarget != null) {
+			//System.out.println(String.format("Time: %d Agent: %s with previous Target: %s",time, me.name, me.previousTarget.name));
+			
+			//if (time != 1L) {
 				pathCost = pathCost(me.previousTarget.type, station.type);
 				
-			} else {
-				for (VisitEdge edge : me.type.visitEdges) {
-					if (!edge.bold) continue;
-					int tmpValue = pathCost((StationType) edge.connectedType, station.type);
-					if (tmpValue < pathCost) pathCost = tmpValue;
+			//} else {
+				if (time == 1L) {
+					for (VisitEdge edge : me.type.visitEdges) {
+						if (!edge.bold) continue;
+						int tmpValue = pathCost((StationType) edge.connectedType, station.type);
+						if (tmpValue < pathCost) pathCost = tmpValue;
+					}
 				}
-			}
+				
+			
+				/*
+				if (currentCells.get(Parameter.STATION_IS_START).isEnabled()) {
+					if (minimumSpanningTree(me).contains(station.type)) {
+						result += currentCells.get(Parameter.STATION_IS_START).evaluate(0.25);
+					}
+				}
+				*/
+			//}
 			//System.out.println(String.format("Agent %s to station %s has cost: %d", me.name, station.name, pathCost));
 			if (pathCost != Integer.MAX_VALUE) {
 				result += currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).evaluate(pathCost);
@@ -437,6 +451,13 @@ public class AbstractSwarmAgentInterface
 		} catch (IOException e) {
 			
 		}
+		
+		for (Parameter parameter : Parameter.values()) {
+			if (!currentCells.containsKey(parameter)) {
+				currentCells.put(parameter, new Cell(parameter.getRepresentation(), parameter.getDefaultValue()));
+			}
+		}
+		
 	}
 
 	private static void saveCells() {
@@ -797,6 +818,55 @@ public class AbstractSwarmAgentInterface
 		return false;
 	}
 	
+	private record CustomEdge(StationType source, StationType destination, int weight) implements Comparable<CustomEdge> {
+		@Override
+		public int compareTo(CustomEdge other) {
+			return Integer.compare(this.weight, other.weight);
+		}
+	}
+	
+	private static List<StationType> edgeStations(List<CustomEdge> customEdge) {
+		HashMap<StationType, Integer> map = new HashMap<>();
+		for (CustomEdge edge : customEdge) {
+			if (map.containsKey(edge.source)) map.put(edge.source, map.get(edge.source) + 1);
+			else map.put(edge.source, 1);
+			if (map.containsKey(edge.destination)) map.put(edge.destination, map.get(edge.destination) + 1);
+			else map.put(edge.destination, 1);
+		}
+		List<StationType> result = new ArrayList<>();
+		
+		int minValue = Collections.min(map.values());
+		for (Map.Entry<StationType, Integer> entry : map.entrySet()) {
+			if (entry.getValue() == minValue) result.add(entry.getKey());
+		}
+		return result;
+	}
+	
+	
+	private static List<StationType> minimumSpanningTree(Agent me) {
+		List<CustomEdge> edges = new ArrayList<>();
+		List<StationType> used = new ArrayList<>();
+		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
+			if (entry.getValue() < 1) continue;
+			if (used.contains(entry.getKey().type)) continue;
+			for (PlaceEdge placeEdge : entry.getKey().type.placeEdges) {
+				if (used.contains(placeEdge.connectedType)) continue;
+				edges.add(new CustomEdge(entry.getKey().type, (StationType) placeEdge.connectedType, placeEdge.weight));
+			}
+			used.add(entry.getKey().type);
+		}
+		List<CustomEdge> mstEdges = new ArrayList<>();
+		Collections.sort(edges);
+		used.clear();
+		for (CustomEdge customEdge : edges) {
+			if (used.contains(customEdge.source) && used.contains(customEdge.destination)) continue;
+			mstEdges.add(customEdge);
+			if (!used.contains(customEdge.source)) used.add(customEdge.source);
+			if (!used.contains(customEdge.destination)) used.add(customEdge.destination);
+		}
+		return edgeStations(mstEdges);
+	}
+	
 	
 	
 	private static String generateTimeStamp() {
@@ -953,7 +1023,7 @@ enum Parameter {
 		}
 	},
 	
-	BOLD_VISIT_EDGE("bold_visit_edge"),
+	BOLD_VISIT_EDGE("bold_visit_edge", 1.5),
 	
 	AGENT_FREQUENCY("agent_frequency"),
 	AGENT_TIME("agent_time"),
@@ -963,13 +1033,15 @@ enum Parameter {
 	AGENT_PRIORITY("agent_priority"),
 	
 	
-	AGENT_DISTANCE_TO_STATION("agent_distance_to_station"),
+	AGENT_DISTANCE_TO_STATION("agent_distance_to_station", -0.25),
 	
 	OTHER_AGENT_SELECTED_STATION("other_agent_selected_station"),
 	OTHER_AGENT_TIME_TO_ARRIVAL("other_agent_time_to_arrival"),
 	OTHER_AGENT_VALUE_OF_STATION("other_agent_value_of_station"),
 	
 	RANDOM("random"),
+	
+	STATION_IS_START("station_is_start", 0.5),
 	
 	STATION_IS_NEIGHBOUR("station_is_neighbour"),
 	STATION_IS_NEAREST("station_is_nearest"),
@@ -982,7 +1054,7 @@ enum Parameter {
 	STATION_TYPE_COMPONENTS("station_type_components"),
 	STATION_TYPE_FREQUENCY("station_type_frequency"),
 	STATION_TYPE_NECESSITY("station_type_necessity"),
-	STATION_TYPE_TIME("station_type_time"),
+	STATION_TYPE_TIME("station_type_time", -0.05),
 	STATION_TYPE_SPACE("station_type_space"),
 
 	;
@@ -991,9 +1063,17 @@ enum Parameter {
 
 	private final String representation;
 
+	private final double defaultValue;
+	
 	private Parameter(String representation) {
-		this.representation = representation;
+		this(representation, 0.5);
 	}
+	
+	private Parameter(String representation, double defaultValue) {
+		this.representation = representation;
+		this.defaultValue = defaultValue;
+	}
+	
 
 	public String getRepresentation() {
 		return representation;
@@ -1010,6 +1090,10 @@ enum Parameter {
 
 	public boolean isDefault() {
 		return false;
+	}
+	
+	public double getDefaultValue() {
+		return defaultValue;
 	}
 
 }

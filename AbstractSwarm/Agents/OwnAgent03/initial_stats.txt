@@ -16,3 +16,4 @@ bold_visit_edge:1.5
 station_is_time_connected:2.0
 station_is_neighbour:0.5
 agent_work_time_left:0.25
+station_is_start:0.5

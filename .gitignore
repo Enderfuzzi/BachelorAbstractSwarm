@@ -1,2 +1,4 @@
 # ignore all files from eclipse
-**/OwnAgent03/.*
+**/Agents/**/.metadata
+**/Agents/**/.idea
+**/Agents/**/*.class

@@ -1,0 +1,3 @@
+# ignore all files from eclipse
+**/OwnAgent03/.idea
+**/OwnAgent03/.metadata

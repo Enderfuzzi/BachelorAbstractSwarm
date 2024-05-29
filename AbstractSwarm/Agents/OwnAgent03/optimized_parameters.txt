@@ -1,42 +1,42 @@
 |Cell: station_frequency
-|Used Parameters: 20
-|Avg Value: 0.558223
+|Used Parameters: 21
+|Avg Value: 0.574456
 
 |Cell: station_type_time
-|Used Parameters: 20
-|Avg Value: -0.050680
+|Used Parameters: 21
+|Avg Value: -0.051828
 
 |Cell: agent_frequency
-|Used Parameters: 20
-|Avg Value: 0.462485
+|Used Parameters: 21
+|Avg Value: 0.461341
 
 |Cell: station_type_space
-|Used Parameters: 20
+|Used Parameters: 21
 |Avg Value: 0.250000
 
 |Cell: other_agent_selected_station
-|Used Parameters: 20
-|Avg Value: -0.295741
+|Used Parameters: 21
+|Avg Value: -0.299242
 
 |Cell: station_is_nearest
-|Used Parameters: 20
-|Avg Value: 0.283525
+|Used Parameters: 21
+|Avg Value: 0.290631
 
 |Cell: agent_distance_to_station
-|Used Parameters: 20
-|Avg Value: -0.195322
+|Used Parameters: 21
+|Avg Value: -0.193736
 
 |Cell: station_space
-|Used Parameters: 20
-|Avg Value: 0.510846
+|Used Parameters: 21
+|Avg Value: 0.508084
 
 |Cell: other_agent_time_to_arrival
-|Used Parameters: 20
+|Used Parameters: 21
 |Avg Value: 0.250000
 
 |Cell: random
-|Used Parameters: 20
-|Avg Value: 0.452525
+|Used Parameters: 21
+|Avg Value: 0.456082
 
 |Cell: station_is_time_connected
 |Used Parameters: 2
@@ -47,18 +47,18 @@
 |Avg Value: 0.270168
 
 |Cell: station_is_neighbour
-|Used Parameters: 12
-|Avg Value: 0.602088
+|Used Parameters: 13
+|Avg Value: 0.566624
 
 |Cell: bold_visit_edge
-|Used Parameters: 8
-|Avg Value: 1.366420
+|Used Parameters: 9
+|Avg Value: 1.245034
 
 |Cell: station_type_components
-|Used Parameters: 20
+|Used Parameters: 21
 |Avg Value: 0.250000
 
 |Cell: other_agent_value_of_station
-|Used Parameters: 20
-|Avg Value: 0.261695
+|Used Parameters: 21
+|Avg Value: 0.261138
 

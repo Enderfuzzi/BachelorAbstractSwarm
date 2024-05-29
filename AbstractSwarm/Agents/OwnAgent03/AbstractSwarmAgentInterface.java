@@ -880,6 +880,7 @@ public class AbstractSwarmAgentInterface
 		
 		for (Map.Entry<Agent, Object> entry : others.entrySet()) {
 			if (entry.getKey().type != me.type) continue;
+			if (entry.getValue() == null) continue;
 			Object[] communication = (Object[]) entry.getValue();
 			if (communication[0] == null) continue;
 			if (!distribution.containsKey((Station) communication[0])) continue;

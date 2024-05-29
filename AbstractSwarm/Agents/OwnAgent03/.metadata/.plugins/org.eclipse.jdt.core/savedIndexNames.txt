@@ -1,1 +1,0 @@
-INDEX VERSION 1.134+R:\Users\Ole\Projekte\BachelorAbstractSwarm\AbstractSwarm\Agents\OwnAgent03\.metadata\.plugins\org.eclipse.jdt.core

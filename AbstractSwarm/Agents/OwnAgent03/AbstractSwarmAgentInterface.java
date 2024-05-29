@@ -375,6 +375,10 @@ public class AbstractSwarmAgentInterface
 			result += currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).evaluate(estimatedWorkTimeLeft(me));
 		}
 	
+		if (currentCells.get(Parameter.AGENT_DISTRIBUTION).isEnabled()) {
+			result += currentCells.get(Parameter.AGENT_DISTRIBUTION).evaluate(agentDistribution(me, others, time, station));
+		}
+		
 		
 		// if station has undirected time edge and is target = pref this station
 		
@@ -868,6 +872,24 @@ public class AbstractSwarmAgentInterface
 	}
 	
 	
+	private static double agentDistribution(Agent me, HashMap<Agent, Object> others, long time, Station station) {
+		HashMap<Station, Long> distribution = new HashMap<>();
+		for (Station tmpStation : me.necessities.keySet()) {
+			distribution.put(tmpStation, 1L);
+		}
+		
+		for (Map.Entry<Agent, Object> entry : others.entrySet()) {
+			if (entry.getKey().type != me.type) continue;
+			Object[] communication = (Object[]) entry.getValue();
+			if (communication[0] == null) continue;
+			if (!distribution.containsKey((Station) communication[0])) continue;
+			distribution.merge((Station) communication[0], 1 * (Long) communication[1], Long::sum);
+		}
+		
+		return distribution.get(station) / time;
+	}
+	
+	
 	
 	private static String generateTimeStamp() {
 		return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
@@ -1031,7 +1053,7 @@ enum Parameter {
 	AGENT_VISITING("agent_visiting"),
 	AGENT_WORK_TIME_LEFT("agent_work_time_left"),
 	AGENT_PRIORITY("agent_priority"),
-	
+	AGENT_DISTRIBUTION("agent_distribution",-0.1),
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station", -0.25),
 	

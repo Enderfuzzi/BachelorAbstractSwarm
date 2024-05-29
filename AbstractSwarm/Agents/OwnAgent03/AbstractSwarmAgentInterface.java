@@ -875,19 +875,25 @@ public class AbstractSwarmAgentInterface
 	private static double agentDistribution(Agent me, HashMap<Agent, Object> others, long time, Station station) {
 		HashMap<Station, Long> distribution = new HashMap<>();
 		for (Station tmpStation : me.necessities.keySet()) {
-			distribution.put(tmpStation, 1L);
+			distribution.put(tmpStation, 0L);
 		}
-		
+		long sum = 0L;
 		for (Map.Entry<Agent, Object> entry : others.entrySet()) {
 			if (entry.getKey().type != me.type) continue;
 			if (entry.getValue() == null) continue;
 			Object[] communication = (Object[]) entry.getValue();
 			if (communication[0] == null) continue;
 			if (!distribution.containsKey((Station) communication[0])) continue;
-			distribution.merge((Station) communication[0], 1 * (Long) communication[1], Long::sum);
+			distribution.merge((Station) communication[0], 2L, Long::sum);
+			sum++;
 		}
+		if (sum == 0L) sum = 1L;
+		double value = ((double) distribution.get(station)) / (sum * time);
 		
-		return distribution.get(station) / time;
+		
+		System.out.println(String.format("Time: %d Agent: %s, Station %s, Distribution Value: %f", 
+				time, me.name, station.name, value));
+		return value;
 	}
 	
 	
@@ -1054,7 +1060,7 @@ enum Parameter {
 	AGENT_VISITING("agent_visiting"),
 	AGENT_WORK_TIME_LEFT("agent_work_time_left"),
 	AGENT_PRIORITY("agent_priority"),
-	AGENT_DISTRIBUTION("agent_distribution",-0.1),
+	AGENT_DISTRIBUTION("agent_distribution",-4.5),
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station", -0.25),
 	

@@ -264,7 +264,8 @@ public class AbstractSwarmAgentInterface
 		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).disableCell();
 		else currentCells.get(Parameter.AGENT_WORK_TIME_LEFT).enableCell();
 		
-		
+		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_DISTRIBUTION).disableCell();
+		else currentCells.get(Parameter.AGENT_DISTRIBUTION).enableCell();
 		//TODO Distribution factor
 		
 		
@@ -429,6 +430,7 @@ public class AbstractSwarmAgentInterface
 	public static void reward( Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value )
 	{
 		if (round_time_unit < time) round_time_unit = time;
+		System.out.println(String.format("[Reward] Agent: %s Time: %d Value: %f", me.name, time, value));
 	}
 
 	

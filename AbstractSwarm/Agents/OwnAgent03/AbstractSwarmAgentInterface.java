@@ -282,7 +282,6 @@ public class AbstractSwarmAgentInterface
 		
 		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_DISTRIBUTION).disableCell();
 		else currentCells.get(Parameter.AGENT_DISTRIBUTION).enableCell();
-		//TODO Distribution factor
 		*/
 		
 		double result = 0.0;
@@ -296,7 +295,7 @@ public class AbstractSwarmAgentInterface
 			//System.out.println(String.format("Time: %d Agent: %s with previous Target: %s",time, me.name, me.previousTarget.name));
 			
 			//if (time != 1L) {
-				pathCost = pathCost(me.previousTarget.type, station.type);
+				
 				
 			//} else {
 				if (time == 1L) {
@@ -305,6 +304,8 @@ public class AbstractSwarmAgentInterface
 						int tmpValue = pathCost((StationType) edge.connectedType, station.type);
 						if (tmpValue < pathCost) pathCost = tmpValue;
 					}
+				} else {
+					pathCost = pathCost(me.previousTarget.type, station.type);
 				}
 				
 			
@@ -360,11 +361,12 @@ public class AbstractSwarmAgentInterface
 			//result += currentCells.get(Parameter.STATION_TYPE_SPACE).evaluate(station.type.space);
 		}
 		
-		if (isNearestStation(me, station)) {
+		if (currentCells.get(Parameter.STATION_IS_NEAREST).isEnabled() && isNearestStation(me, station)) {
 			result += currentCells.get(Parameter.STATION_IS_NEAREST).evaluate(0.5);
 		}
 		
 		if (currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).isEnabled()) {
+			/*
 			List<Station> s = getUndirectedTimeConnectedStations(station);
 			for (Object ob : others.values()) {
 				if (ob == null) continue;
@@ -373,6 +375,10 @@ public class AbstractSwarmAgentInterface
 					result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate((Double) o[2]);
 				}
 			}
+			*/
+			result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate(timeEdgeHandling(me, others,time, station));
+			
+			
 		}
 		
 		if (currentCells.get(Parameter.BOLD_VISIT_EDGE).isEnabled()) {
@@ -382,7 +388,7 @@ public class AbstractSwarmAgentInterface
 		}
 		
 
-		if (isNeighbourStation(me, station)) {
+		if (currentCells.get(Parameter.STATION_IS_NEIGHBOUR).isEnabled() && isNeighbourStation(me, station)) {
 			result += currentCells.get(Parameter.STATION_IS_NEIGHBOUR).evaluate(0.5);
 		}
 		
@@ -794,14 +800,38 @@ public class AbstractSwarmAgentInterface
 	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
 		List<Station> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
-			if (edge.weight == 0) {
-				if (edge.connectedType instanceof StationType stationType) {
-						result.addAll(stationType.components);
-				}
+			if (edge.connectedType instanceof StationType stationType) {
+					result.addAll(stationType.components);
 			}
 		}
 		return result;
 	}
+	
+	private static List<Station> getOutgoingTimeConnectedStations(Station station) {
+		List<Station> result = new ArrayList<>();
+		for (TimeEdge edge : station.type.timeEdges) {
+			if (!edge.outgoing) continue;
+			if (edge.connectedType instanceof StationType stationType) {
+					result.addAll(stationType.components);
+			}
+		}
+		return result;
+	}
+	
+	private static double timeEdgeHandling(Agent me, HashMap<Agent, Object> others,long time, Station station) {
+		List<Station> outgoingConnectedStations = getOutgoingTimeConnectedStations(station);
+		System.out.println(String.format("Time: %d Agent: %s Station: %s",time, me.name, station.name));
+		for (Agent agent : others.keySet()) {
+			System.out.println(String.format("Agent visiting: %b Agent time: %d List Contains Station: %b", agent.visiting, agent.time,outgoingConnectedStations.contains(agent.target)));
+			if (!agent.visiting) continue;
+			if (agent.time == -1) continue;
+			if (!outgoingConnectedStations.contains(agent.target)) continue;
+			System.out.println(String.format("Path cost: %d Station time: %d Agent time %d", pathCost(me.previousTarget.type, station.type), station.type.time, agent.time));
+			if (pathCost(me.previousTarget.type, station.type) + station.type.time <= agent.time) return 10.0;
+		}
+		return 0.0;
+	}
+	
 	
 	private static boolean isNeighbourStation(Agent me, Station station) {
 		if (me.previousTarget == null) return false;
@@ -810,6 +840,12 @@ public class AbstractSwarmAgentInterface
 		}
 		return false;
 	}
+	
+
+	
+	
+	
+	
 	
 	private static double estimatedWorkTimeLeft(Agent me) {
 		double result = 0.0;
@@ -1110,9 +1146,9 @@ enum Parameter {
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station", -0.25),
 	
-	OTHER_AGENT_SELECTED_STATION("other_agent_selected_station"),
+	OTHER_AGENT_SELECTED_STATION("other_agent_selected_station", 0.5, 0.2),
 	OTHER_AGENT_TIME_TO_ARRIVAL("other_agent_time_to_arrival"),
-	OTHER_AGENT_VALUE_OF_STATION("other_agent_value_of_station"),
+	OTHER_AGENT_VALUE_OF_STATION("other_agent_value_of_station", 0.5, 0.2),
 	
 	RANDOM("random"),
 	

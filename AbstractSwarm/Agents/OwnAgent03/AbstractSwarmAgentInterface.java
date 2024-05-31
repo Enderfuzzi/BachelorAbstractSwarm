@@ -200,10 +200,12 @@ public class AbstractSwarmAgentInterface
 			
 			if (!graphHasTimeEdges(stations)) {
 				currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).disableCell();
+				currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).setChanceForActivation(0.0);
 			}
 			
 			if (!graphHasBoldVisitEdge(stations)) {
 				currentCells.get(Parameter.BOLD_VISIT_EDGE).disableCell();
+				currentCells.get(Parameter.BOLD_VISIT_EDGE).setChanceForActivation(0.0);
 			}
 			
 			
@@ -225,6 +227,19 @@ public class AbstractSwarmAgentInterface
 					cell.saveStatus();
 					if (cell.wasUsed()) {
 						cell.save();
+						if (cell.isEnabled()) {
+							if (cell.getChanceForActivation() <= 0.3) {
+								cell.setChanceForActivation(cell.getChanceForActivation() * 2);
+							} else {
+								cell.setChanceForActivation(cell.getChanceForActivation() + cell.getChanceForActivation() * 0.2);
+							}
+						} else {
+							if (cell.getChanceForActivation() >= 0.7) {
+								cell.setChanceForActivation(cell.getChanceForActivation() / 2);
+							} else {
+								cell.setChanceForActivation(cell.getChanceForActivation() - cell.getChanceForActivation() * 0.2);
+							}
+						}
 					}
 					cell.resetMutateFaktor();
 				}
@@ -244,9 +259,10 @@ public class AbstractSwarmAgentInterface
 			printStatus();
 			
 			for (Cell cell : currentCells.values()) {
+				cell.computeCellActivity();
+				cell.reset();
 				if (!cell.wasUsed()) continue;
 				if (!cell.isEnabled()) continue;
- 				cell.reset();
 				cell.mutate();
 				cell.resetUseage();
 			}
@@ -256,7 +272,7 @@ public class AbstractSwarmAgentInterface
 		last_number = time;
 		lastRunCompleted = possibleLastRun(me, new ArrayList<Agent>(others.keySet()), stations);
 		if (round_time_unit < time) round_time_unit = time;
-		
+		/*
 		if (random.nextDouble() > 0.3) currentCells.get(Parameter.STATION_IS_NEIGHBOUR).disableCell();
 		else currentCells.get(Parameter.STATION_IS_NEIGHBOUR).enableCell();
 		
@@ -267,7 +283,7 @@ public class AbstractSwarmAgentInterface
 		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_DISTRIBUTION).disableCell();
 		else currentCells.get(Parameter.AGENT_DISTRIBUTION).enableCell();
 		//TODO Distribution factor
-		
+		*/
 		
 		double result = 0.0;
 		
@@ -430,7 +446,7 @@ public class AbstractSwarmAgentInterface
 	public static void reward( Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value )
 	{
 		if (round_time_unit < time) round_time_unit = time;
-		System.out.println(String.format("[Reward] Agent: %s Time: %d Value: %f", me.name, time, value));
+		//System.out.println(String.format("[Reward] Agent: %s Time: %d Value: %f", me.name, time, value));
 	}
 
 	
@@ -450,7 +466,7 @@ public class AbstractSwarmAgentInterface
 					} catch (NumberFormatException e) {
 						//TODO add format exception handling
 					}
-					currentCells.put(parameter, new Cell(splited[0], cellWeight));
+					currentCells.put(parameter, new Cell(splited[0], cellWeight, parameter.getActivityScore()));
 				}
 			}
 			reader.close();
@@ -460,7 +476,7 @@ public class AbstractSwarmAgentInterface
 		
 		for (Parameter parameter : Parameter.values()) {
 			if (!currentCells.containsKey(parameter)) {
-				currentCells.put(parameter, new Cell(parameter.getRepresentation(), parameter.getDefaultValue()));
+				currentCells.put(parameter, new Cell(parameter.getRepresentation(), parameter.getDefaultValue(), parameter.getActivityScore()));
 			}
 		}
 		
@@ -893,8 +909,8 @@ public class AbstractSwarmAgentInterface
 		double value = ((double) distribution.get(station)) / (sum * time);
 		
 		
-		System.out.println(String.format("Time: %d Agent: %s, Station %s, Distribution Value: %f", 
-				time, me.name, station.name, value));
+		//System.out.println(String.format("Time: %d Agent: %s, Station %s, Distribution Value: %f", 
+		//		time, me.name, station.name, value));
 		return value;
 	}
 	
@@ -938,11 +954,15 @@ class Cell {
 	private Status status;
 	private Status bestRunStatus;
 	
+	//value between 0 and 1
+	private double chanceForActivation;
 	
-	public Cell(String key, double weight) {
+	
+	public Cell(String key, double weight, double chanceForActivation) {
 		this.key = key;
 		this.weight = weight;
 		this.initialWeight = weight;
+		this.chanceForActivation = chanceForActivation;
 		this.used = false;
 		this.status = Cell.Status.ENABLED;
 		this.bestRunStatus = Cell.Status.ENABLED;
@@ -1038,10 +1058,34 @@ class Cell {
 		return this.bestRunStatus == Cell.Status.ENABLED;
 	}
 	
+	public void computeCellActivity() {
+		if (this.chanceForActivation != 0.0 && (this.chanceForActivation == 1.0 || generator.nextDouble() < this.chanceForActivation)) {
+			this.enableCell();
+		} else {
+			this.disableCell();
+		}
+	}
+	
+	public double getChanceForActivation() {
+		return this.chanceForActivation;
+	}
+	
+	public void setChanceForActivation(double value) {
+		if (value > 1.0) {
+			this.chanceForActivation = 1.0;
+		} else if(value < 0.0) {
+			this.chanceForActivation = 0.0;
+		} else {
+			this.chanceForActivation = value;
+		}
+	}
+		
+	
+	
 	@Override
 	public String toString() {
-		return String.format(Locale.US,"[%s: %s with current weight: %f and best weight: %f | Mutate Faktor: %f | Status: %s]", 
-				this.getClass().getSimpleName(), key, weight, initialWeight, mutateFaktor, status.name());
+		return String.format(Locale.US,"[%s: %s Current weight: %f Best weight: %f | Mutate Faktor: %f | Status: %s | Chance for activation: %f]", 
+				this.getClass().getSimpleName(), key, weight, initialWeight, mutateFaktor, status.name(), chanceForActivation);
 	}
 }
 
@@ -1060,9 +1104,9 @@ enum Parameter {
 	AGENT_TIME("agent_time"),
 	AGENT_TARGET("agent_target"),
 	AGENT_VISITING("agent_visiting"),
-	AGENT_WORK_TIME_LEFT("agent_work_time_left"),
+	AGENT_WORK_TIME_LEFT("agent_work_time_left", 0.5, 0.5),
 	AGENT_PRIORITY("agent_priority"),
-	AGENT_DISTRIBUTION("agent_distribution",-4.5),
+	AGENT_DISTRIBUTION("agent_distribution",-4.5, 0.5),
 	
 	AGENT_DISTANCE_TO_STATION("agent_distance_to_station", -0.25),
 	
@@ -1074,7 +1118,7 @@ enum Parameter {
 	
 	STATION_IS_START("station_is_start", 0.5),
 	
-	STATION_IS_NEIGHBOUR("station_is_neighbour"),
+	STATION_IS_NEIGHBOUR("station_is_neighbour", 0.5, 0.7),
 	STATION_IS_NEAREST("station_is_nearest"),
 	STATION_IS_TIME_CONNECTED("station_is_time_connected"),
 	
@@ -1096,13 +1140,20 @@ enum Parameter {
 
 	private final double defaultValue;
 	
+	private final double activityScore;
+	
 	private Parameter(String representation) {
 		this(representation, 0.5);
 	}
 	
 	private Parameter(String representation, double defaultValue) {
+		this(representation, defaultValue, 1.0);
+	}
+	
+	private Parameter(String representation, double defaultValue, double activityScore) {
 		this.representation = representation;
 		this.defaultValue = defaultValue;
+		this.activityScore = activityScore;
 	}
 	
 
@@ -1127,5 +1178,9 @@ enum Parameter {
 		return defaultValue;
 	}
 
+	public double getActivityScore() {
+		return activityScore;
+	}
+	
 }
 

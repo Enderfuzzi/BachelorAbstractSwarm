@@ -1,0 +1,8 @@
+OwnAgent03,Crossroads.xml,100,20
+OwnAgent03,Delivery.xml,100,20
+OwnAgent03,PatientsCoordination.xml,100,20
+OwnAgent03,Storage.xml,100,20
+OwnAgent03,Treatment.xml,100,20
+OwnAgent03,Ward_Round.xml,100,20
+OwnAgent03,X-Ray_Scheduling.xml,100,20
+OwnAgent03,X-Ray_Scheduling_2.xml,100,20

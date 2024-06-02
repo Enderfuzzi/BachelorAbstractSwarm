@@ -207,8 +207,6 @@ public class AbstractSwarmAgentInterface
 				currentCells.get(Parameter.BOLD_VISIT_EDGE).disableCell();
 				currentCells.get(Parameter.BOLD_VISIT_EDGE).setChanceForActivation(0.0);
 			}
-			
-			
 		}
 		
 		if (time == 1 && last_number != 1) {
@@ -283,7 +281,7 @@ public class AbstractSwarmAgentInterface
 		if (random.nextDouble() > 0.5) currentCells.get(Parameter.AGENT_DISTRIBUTION).disableCell();
 		else currentCells.get(Parameter.AGENT_DISTRIBUTION).enableCell();
 		*/
-		
+		//System.out.println("----------------------------------------------");
 		double result = 0.0;
 		
 		result += currentCells.get(Parameter.RANDOM).evaluate(random.nextDouble());
@@ -292,32 +290,15 @@ public class AbstractSwarmAgentInterface
 
 		if (currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).isEnabled()) {
 			int pathCost = Integer.MAX_VALUE;
-			//System.out.println(String.format("Time: %d Agent: %s with previous Target: %s",time, me.name, me.previousTarget.name));
-			
-			//if (time != 1L) {
-				
-				
-			//} else {
-				if (time == 1L) {
-					for (VisitEdge edge : me.type.visitEdges) {
-						if (!edge.bold) continue;
-						int tmpValue = pathCost((StationType) edge.connectedType, station.type);
-						if (tmpValue < pathCost) pathCost = tmpValue;
-					}
-				} else {
-					pathCost = pathCost(me.previousTarget.type, station.type);
+			if (time == 1L) {
+				for (VisitEdge edge : me.type.visitEdges) {
+					if (!edge.bold) continue;
+					int tmpValue = pathCost((StationType) edge.connectedType, station.type);
+					if (tmpValue < pathCost) pathCost = tmpValue;
 				}
-				
-			
-				/*
-				if (currentCells.get(Parameter.STATION_IS_START).isEnabled()) {
-					if (minimumSpanningTree(me).contains(station.type)) {
-						result += currentCells.get(Parameter.STATION_IS_START).evaluate(0.25);
-					}
-				}
-				*/
-			//}
-			//System.out.println(String.format("Agent %s to station %s has cost: %d", me.name, station.name, pathCost));
+			} else {
+				pathCost = pathCost(me.previousTarget.type, station.type);
+			}
 			if (pathCost != Integer.MAX_VALUE) {
 				result += currentCells.get(Parameter.AGENT_DISTANCE_TO_STATION).evaluate(pathCost);
 			}
@@ -374,13 +355,13 @@ public class AbstractSwarmAgentInterface
 				if (filteredCommunications.size() > 0) {
 					Object[] highestStationCommunication = filteredCommunications.get(0);
 					for (Object[] communication : filteredCommunications) {
-						if (max_value == 0.0 || max_value < (double) communication[2]) {
+						if (max_value == 0.0 || max_value < Math.abs((double) communication[2])) {
 							max_value = (double) communication[2];
 						}
 					}
 				}
 			}
-			System.out.println(String.format("Time: %d Agent: %s Station: %s Max Value: %f", time, me.name, station.name, max_value));
+			//System.out.println(String.format("Time: %d Agent: %s Station: %s Max Value: %f", time, me.name, station.name, max_value));
 			result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate(max_value);
 			
 			/*
@@ -420,14 +401,25 @@ public class AbstractSwarmAgentInterface
 		}
 		
 		
+		if (currentCells.get(Parameter.STATION_TYPE_IS_SAME).isEnabled()) {
+			if (time == 1L && me.previousTarget.type == station.type) {
+				result += currentCells.get(Parameter.STATION_TYPE_IS_SAME).evaluate(1);
+			}
+		}
+		
+		if (currentCells.get(Parameter.OTHER_STATIONS_REACHABLE).isEnabled() && otherStationsReachable(me, station)) {
+			result += currentCells.get(Parameter.OTHER_STATIONS_REACHABLE).evaluate(1);
+		}
 		
 		// if station has undirected time edge and is target = pref this station
 		
 		//int remainingVisits = remainingVisitsOfAStationType(me, me.previousTarget.type);
 		//if (remainingVisits > 0 && station.type == me.previousTarget.type) return 0.0;
 		
-		
+		//System.out.println("Time: " + time);
+		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
 		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
+		//System.out.println("----------------------------------------------");
 		
 		return result;
 	}
@@ -769,7 +761,9 @@ public class AbstractSwarmAgentInterface
 			}
 			
 		}
-		return 0;
+		//System.out.println(String.format("Path calculation: %s to %s with cost: %d", start.name, target.name, -1));
+		// -> station is not reachable
+		return -1;
 	}
 	
 	private static int remainingVisitsOfAStationType(Agent me, StationType type) {
@@ -818,7 +812,7 @@ public class AbstractSwarmAgentInterface
 	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
 		List<Station> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
-			System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
+			//System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
 			if (edge.incoming || edge.outgoing) continue;
 			if (edge.connectedType instanceof StationType stationType) {
 					result.addAll(stationType.components);
@@ -842,11 +836,11 @@ public class AbstractSwarmAgentInterface
 		List<Station> outgoingConnectedStations = getOutgoingTimeConnectedStations(station);
 		System.out.println(String.format("Time: %d Agent: %s Station: %s",time, me.name, station.name));
 		for (Agent agent : others.keySet()) {
-			System.out.println(String.format("Agent visiting: %b Agent time: %d List Contains Station: %b", agent.visiting, agent.time,outgoingConnectedStations.contains(agent.target)));
+			//System.out.println(String.format("Agent visiting: %b Agent time: %d List Contains Station: %b", agent.visiting, agent.time,outgoingConnectedStations.contains(agent.target)));
 			if (!agent.visiting) continue;
 			if (agent.time == -1) continue;
 			if (!outgoingConnectedStations.contains(agent.target)) continue;
-			System.out.println(String.format("Path cost: %d Station time: %d Agent time %d", pathCost(me.previousTarget.type, station.type), station.type.time, agent.time));
+			//System.out.println(String.format("Path cost: %d Station time: %d Agent time %d", pathCost(me.previousTarget.type, station.type), station.type.time, agent.time));
 			if (pathCost(me.previousTarget.type, station.type) + station.type.time <= agent.time) return 10.0;
 		}
 		return 0.0;
@@ -871,10 +865,13 @@ public class AbstractSwarmAgentInterface
 		double result = 0.0;
 		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
 			if (entry.getValue() == 0) continue;
-			if (entry.getKey().type.time == -1) {
+			
+			if (entry.getKey().type.time == -1 && me.type.time == -1) {
 				result += entry.getValue();
-			} else {
+			} else if (me.type.time == -1) {
 				result += entry.getValue() * entry.getKey().type.time;
+			} else {
+				result += entry.getValue() * me.type.time;
 			}
 		}
 		return result;
@@ -970,6 +967,18 @@ public class AbstractSwarmAgentInterface
 		return value;
 	}
 	
+	private static boolean otherStationsReachable(Agent me, Station station) {
+		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
+			if (entry.getValue() <= 0) continue;
+			//System.out.println(String.format("From %s to %s", station.type.name , entry.getKey().type.name));
+			if (pathCost(station.type, entry.getKey().type) == -1) return false;
+		}
+		//System.out.println(String.format("Agent: %s Station: %s All Stations are reachable", me.name, station.name));
+		return true;
+	}
+	
+	
+	
 	
 	
 	private static String generateTimeStamp() {
@@ -997,6 +1006,7 @@ class Cell {
 	
 	private double weight;
 	private double initialWeight;
+	
 	private String key;
 	private boolean used;
 	
@@ -1023,14 +1033,18 @@ class Cell {
 		this.status = Cell.Status.ENABLED;
 		this.bestRunStatus = Cell.Status.ENABLED;
 	}
+	
+	
 
 	public double evaluate(double input) {
 		if (status == Cell.Status.DISABLED) return 0.0;
 		
 		used = true;
 		if (input < 0) input = 1.0;
+		
 		return weight * input;
 	}
+	
 
 	public void mutate() {
 		weight += weight * (generator.nextDouble(mutateFaktor * 2) - mutateFaktor);
@@ -1038,7 +1052,6 @@ class Cell {
 
 	public void reset() {
 		this.weight = initialWeight;
-		increaseNumberOfRuns();
 	}
 	
 	public void save() {
@@ -1085,11 +1098,7 @@ class Cell {
 		this.mutateFaktor = this.initialMutateFaktor;
 	}
 	
-	private void increaseNumberOfRuns() {
-		//numberOfRuns++;
-		//if (numberOfRuns % 10 == 0) mutateFaktor *= 0.8;
-	}
-	
+
 	public Status getStatus() {
 		return this.status;
 	}
@@ -1135,7 +1144,6 @@ class Cell {
 			this.chanceForActivation = value;
 		}
 	}
-		
 	
 	
 	@Override
@@ -1172,6 +1180,8 @@ enum Parameter {
 	
 	RANDOM("random"),
 	
+	OTHER_STATIONS_REACHABLE("other_stations_reachable", 5, 1),
+	
 	STATION_IS_START("station_is_start", 0.5),
 	
 	STATION_IS_NEIGHBOUR("station_is_neighbour", 0.5, 0.7),
@@ -1185,9 +1195,11 @@ enum Parameter {
 	STATION_TYPE_COMPONENTS("station_type_components"),
 	STATION_TYPE_FREQUENCY("station_type_frequency"),
 	STATION_TYPE_NECESSITY("station_type_necessity"),
-	STATION_TYPE_TIME("station_type_time", -0.05),
+	STATION_TYPE_TIME("station_type_time", -0.35, 0.6),
 	STATION_TYPE_SPACE("station_type_space"),
+	STATION_TYPE_IS_SAME("station_type_is_same", 1, 0.7),
 
+	
 	;
 
 	private final static Parameter[] parameters = Parameter.values();

@@ -366,6 +366,23 @@ public class AbstractSwarmAgentInterface
 		}
 		
 		if (currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).isEnabled()) {
+			
+			double max_value = 0.0;
+			
+			for (Station timeConnectedStations : getUndirectedTimeConnectedStations(station)) {
+				List<Object[]> filteredCommunications = getCommunicationOfStation(others, timeConnectedStations);
+				if (filteredCommunications.size() > 0) {
+					Object[] highestStationCommunication = filteredCommunications.get(0);
+					for (Object[] communication : filteredCommunications) {
+						if (max_value == 0.0 || max_value < (double) communication[2]) {
+							max_value = (double) communication[2];
+						}
+					}
+				}
+			}
+			System.out.println(String.format("Time: %d Agent: %s Station: %s Max Value: %f", time, me.name, station.name, max_value));
+			result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate(max_value);
+			
 			/*
 			List<Station> s = getUndirectedTimeConnectedStations(station);
 			for (Object ob : others.values()) {
@@ -376,7 +393,7 @@ public class AbstractSwarmAgentInterface
 				}
 			}
 			*/
-			result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate(timeEdgeHandling(me, others,time, station));
+			//result += currentCells.get(Parameter.STATION_IS_TIME_CONNECTED).evaluate(timeEdgeHandling(me, others,time, station));
 			
 			
 		}
@@ -401,6 +418,7 @@ public class AbstractSwarmAgentInterface
 		if (currentCells.get(Parameter.AGENT_DISTRIBUTION).isEnabled()) {
 			result += currentCells.get(Parameter.AGENT_DISTRIBUTION).evaluate(agentDistribution(me, others, time, station));
 		}
+		
 		
 		
 		// if station has undirected time edge and is target = pref this station
@@ -800,6 +818,8 @@ public class AbstractSwarmAgentInterface
 	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
 		List<Station> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
+			System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
+			if (edge.incoming || edge.outgoing) continue;
 			if (edge.connectedType instanceof StationType stationType) {
 					result.addAll(stationType.components);
 			}

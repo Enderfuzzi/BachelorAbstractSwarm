@@ -1,64 +1,152 @@
 |Cell: station_frequency
-|Used Parameters: 222
-|Avg Value: 0.504891
+|Used Parameters: 453
+|Avg Value: 0.491024
 
 |Cell: station_type_time
-|Used Parameters: 171
-|Avg Value: -0.049672
+|Used Parameters: 319
+|Avg Value: -0.048346
 
 |Cell: agent_frequency
-|Used Parameters: 222
-|Avg Value: 0.495134
+|Used Parameters: 444
+|Avg Value: 0.491970
 
 |Cell: station_type_space
-|Used Parameters: 222
+|Used Parameters: 439
 |Avg Value: 0.250000
 
 |Cell: other_agent_selected_station
-|Used Parameters: 79
-|Avg Value: -0.280281
+|Used Parameters: 122
+|Avg Value: -0.279778
 
 |Cell: station_is_nearest
-|Used Parameters: 222
-|Avg Value: 0.258960
+|Used Parameters: 456
+|Avg Value: 0.255520
 
 |Cell: agent_distance_to_station
-|Used Parameters: 222
-|Avg Value: -0.229698
+|Used Parameters: 456
+|Avg Value: -0.243768
 
 |Cell: station_space
-|Used Parameters: 222
-|Avg Value: 0.504042
+|Used Parameters: 453
+|Avg Value: 0.502568
 
 |Cell: other_agent_time_to_arrival
-|Used Parameters: 222
+|Used Parameters: 439
 |Avg Value: 0.250000
 
 |Cell: random
-|Used Parameters: 222
-|Avg Value: 0.484374
+|Used Parameters: 456
+|Avg Value: 0.495262
 
 |Cell: station_is_time_connected
-|Used Parameters: 68
-|Avg Value: 1.641371
+|Used Parameters: 166
+|Avg Value: 1.824235
 
 |Cell: agent_work_time_left
-|Used Parameters: 129
-|Avg Value: 0.252805
+|Used Parameters: 267
+|Avg Value: 0.249037
 
 |Cell: station_is_neighbour
-|Used Parameters: 165
-|Avg Value: 0.507299
+|Used Parameters: 357
+|Avg Value: 0.502022
 
 |Cell: bold_visit_edge
-|Used Parameters: 136
-|Avg Value: 1.272863
+|Used Parameters: 348
+|Avg Value: 1.383938
 
 |Cell: station_type_components
-|Used Parameters: 221
+|Used Parameters: 437
 |Avg Value: 0.250000
 
 |Cell: other_agent_value_of_station
-|Used Parameters: 78
-|Avg Value: 0.254415
+|Used Parameters: 114
+|Avg Value: 0.251605
+
+|Cell: station_type_is_same
+|Used Parameters: 24
+|Avg Value: 0.972963
+
+|Cell: agent_time
+|Used Parameters: 11
+|Avg Value: 0.500000
+
+|Cell: agent_target
+|Used Parameters: 13
+|Avg Value: 0.500000
+
+|Cell: agent_visiting
+|Used Parameters: 12
+|Avg Value: 0.500000
+
+|Cell: agent_priority
+|Used Parameters: 12
+|Avg Value: 0.500000
+
+|Cell: agent_distribution
+|Used Parameters: 17
+|Avg Value: -8.049187
+
+|Cell: agent_necessitiy
+|Used Parameters: 27
+|Avg Value: 0.514972
+
+|Cell: other_agent_necessity
+|Used Parameters: 27
+|Avg Value: 0.268817
+
+|Cell: other_stations_reachable
+|Used Parameters: 27
+|Avg Value: 3.804041
+
+|Cell: station_is_start
+|Used Parameters: 11
+|Avg Value: 0.500000
+
+|Cell: station_capacity
+|Used Parameters: 10
+|Avg Value: 0.500000
+
+|Cell: station_necessity
+|Used Parameters: 27
+|Avg Value: 0.485454
+
+|Cell: station_type_frequency
+|Used Parameters: 9
+|Avg Value: 0.500000
+
+|Cell: station_type_necessity
+|Used Parameters: 10
+|Avg Value: 0.500000
+
+|Cell: other_station_necessity
+|Used Parameters: 27
+|Avg Value: 0.268772
+
+|Cell: station_directed_time_weight
+|Used Parameters: 13
+|Avg Value: 0.269634
+
+|Cell: station_directed_time_target_time
+|Used Parameters: 13
+|Avg Value: 0.649291
+
+|Cell: station_directed_time
+|Used Parameters: 25
+|Avg Value: 0.467964
+
+|Cell: station_incoming_time_weight
+|Used Parameters: 13
+|Avg Value: -0.261891
+
+|Cell: agent_type_size
+|Used Parameters: 18
+|Avg Value: -0.808696
+
+|Cell: agent_type_size_with_station
+|Used Parameters: 18
+|Avg Value: -1.084425
+
+|Cell: station_is_same
+|Used Parameters: 8
+|Avg Value: 1.098890
 

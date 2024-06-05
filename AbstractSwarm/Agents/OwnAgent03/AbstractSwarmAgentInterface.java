@@ -248,7 +248,7 @@ public class AbstractSwarmAgentInterface
 				((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
 		if (round_time_unit < time) round_time_unit = time;
 		
-		currentSolution.addTarget(time, me, (Station) defaultData[0],  (Long) defaultData[1], (double) defaultData[2]);
+		currentSolution.addPrediction(time, me, (Station) defaultData[0],  (Long) defaultData[1], (double) defaultData[2]);
 		
 		return defaultData;
 	}
@@ -270,7 +270,7 @@ public class AbstractSwarmAgentInterface
 	{
 		if (round_time_unit < time) round_time_unit = time;
 		System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
-		currentSolution.addFinish(time, me);
+		currentSolution.addReward(time, me);
 		
 		System.out.println(currentSolution);
 	}

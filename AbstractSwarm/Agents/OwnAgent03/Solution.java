@@ -5,74 +5,74 @@ import java.util.Map;
 
 public class Solution {
 
-	// list when a station gets targeted
-	private HashMap<Long, List<Tuple>> target = new HashMap<>();
+	private HashMap<Agent, Prediction> prediction = new HashMap<>();
 	
-	private List<Tuple> usedTuples = new ArrayList<>();
+	private List<Agent> agentsAtStations = new ArrayList<>();
 	
-	//List of agents which are finished with their task per time
-	private HashMap<Agent, List<Long>> finish = new HashMap<>();
+	private List<PlanEntry> plan = new ArrayList<>();
 	
 	
-	
-	
-	
-	public void addTarget(Long time, Agent agent, Station station, Long arrivalTime, double stationValue) {
-		if (!target.containsKey(time)) {
-			target.put(time, new ArrayList<>());
+	public void addPrediction(Long time, Agent agent, Station station, Long arrivalTime, double stationValue) {
+		Prediction newPrediction = new Prediction(station, time, arrivalTime);
+		if (!prediction.containsKey(agent)) {
+			prediction.put(agent, newPrediction);
+		} else {
+			if (!prediction.get(agent).equals(newPrediction)) {
+				prediction.put(agent, newPrediction);
+			}
 		}
-		Tuple newTuple = new Tuple(agent, station, arrivalTime, stationValue);
-		if (time - 1L > 0L) {
-			if (usedTuples.contains(newTuple)) return;
+		
+		if (prediction.get(agent).predictionTime() == prediction.get(agent).arrivalTime()) {
+			agentsAtStations.add(agent);
 		}
-		usedTuples.add(newTuple);
-		target.get(time).add(newTuple);
 	}
 	
 	
-	public void addFinish(Long time, Agent agent) {
-		if (!finish.containsKey(agent)) {
-			finish.put(agent, new ArrayList<>());
+	public void addReward(Long time, Agent agent) {
+		if (agentsAtStations.contains(agent)) {
+			Prediction currentPrediction = prediction.remove(agent);
+			if (currentPrediction == null) return;
+			plan.add(new PlanEntry(agent, currentPrediction.station(), 
+					currentPrediction.predictionTime(), currentPrediction.arrivalTime(), time));
+			agentsAtStations.remove(agent);
 		}
-		finish.get(agent).add(time);
 	}
 	
 	public void clear() {
-		target.clear();
-		finish.clear();
+		prediction.clear();
+		agentsAtStations.clear();
+		plan.clear();
 	}
 	
 	
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		HashMap<Agent, Integer> index = new HashMap<>();
-		
-		for (Map.Entry<Long, List<Tuple>> entry : target.entrySet()) {
-			if (entry.getValue().size() > 0) {
-				for (Tuple tuple : entry.getValue()) {
-					
-					
-					if (!finish.containsKey(tuple.agent())) continue;
-					
-					if (!index.containsKey(tuple.agent())) index.put(tuple.agent(),0);
-					
-					if (index.get(tuple.agent()) >= finish.get(tuple.agent()).size()) continue;
-					
-					
-					result.append(
-							String.format("[Plan] Time: %d Agent %s Station: %s Arrival Time %d Finish Time: %d Station Value: %f\n", 
-									entry.getKey(), tuple.agent().name, tuple.station().name, tuple.arrivalTime(),
-									finish.get(tuple.agent()).get(index.get(tuple.agent())), tuple.stationValue())
-							);
-					index.merge(tuple.agent(), 1, Integer::sum);
-				}
-				index.clear();
-				result.append("-----------------------------------\n");
-			}
+		for (PlanEntry entry : plan) {
+			result.append(entry);
+			result.append("\n");
 		}
 		return result.toString();
 	}
-	
-	
 }
+
+record Prediction(Station station, Long predictionTime, Long arrivalTime) {
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Prediction prediction)) return false;
+		if (this.station != prediction.station) return false;
+		if (this.arrivalTime != prediction.arrivalTime) return false;
+		return true;
+	}
+};
+
+record PlanEntry(Agent agent, Station station, Long predictionTime, 
+		Long arrivalTime, Long finishTime ) {
+	
+	@Override
+	public String toString() {
+		return String.format("[PlanEntry] Agent: %s Station %s Prediction Time: %d Arrival Time: %d finish Time: %d",
+				agent.name, station.name, predictionTime, arrivalTime, finishTime);
+	}
+};
+

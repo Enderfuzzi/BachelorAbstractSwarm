@@ -15,27 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import java.io.BufferedWriter;
-import java.io.BufferedReader;
-
-import java.io.FileWriter;
-import java.io.FileReader;
-
-import java.io.IOException;
-
-import java.lang.NumberFormatException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Random;
-import java.util.Date;
-
-import java.text.SimpleDateFormat;
 /**
  * This class provides the three methods of the AbstractSwarm agent interface 
  * for state perception and performing actions, communication with other agents
@@ -145,6 +129,8 @@ public class AbstractSwarmAgentInterface
 
 	private static Solution currentSolution = new Solution();
 	
+	private static FinishedSolution bestSolution;
+	
 	private static long round_time_unit = 0;
 	
 	private static TimeStatistics timeStatistic = new TimeStatistics();
@@ -166,7 +152,7 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static double evaluation(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station )
 	{
-		
+		timeStatistic.time = time;
 		
 		if (time == 1 && timeStatistic.lastValue != 1) {
 			timeStatistic.numberOfRuns++;
@@ -174,26 +160,41 @@ public class AbstractSwarmAgentInterface
 			
 			timeStatistic.newRun = true;
 			
-			System.out.println(currentSolution);
-			currentSolution.clear();
+			
+			if (timeStatistic.numberOfRuns == 20) {
+				System.out.print(bestSolution);
+			}
+			
 			
 			if (timeStatistic.lastRunCompleted) timeStatistic.numberOfCompletedRuns++;
 			
 			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit < timeStatistic.lowestTimeUnit) {
 				timeStatistic.newBestRun = true;
 				
+				bestSolution = new FinishedSolution(currentSolution.getSolution());
 				if (timeStatistic.roundTimeUnit > 0) {
 					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
 					timeStatistic.runsSinceCurrentBest = 0;
 				}
+				System.out.print(bestSolution);
 			} else {
 				timeStatistic.newBestRun = false;
 			}
+			
+			currentSolution.clear();
+			System.out.println(timeStatistic);
 		} else {
 			timeStatistic.newRun = false;
 		}
 		
-		double result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+		double result = 0.0;
+		
+		if (timeStatistic.numberOfRuns <= 20) {
+			result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+		} else {
+			result = bestSolution.createStationValue(me, time, station);
+		}
+		
 		
 		if (timeStatistic.newRun) {
 			timeStatistic.roundTimeUnit = 0;
@@ -244,8 +245,8 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static Object communication( Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Object[] defaultData )
 	{
-		System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
-				((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
+		//System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
+		//		((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
 		if (round_time_unit < time) round_time_unit = time;
 		
 		currentSolution.addPrediction(time, me, (Station) defaultData[0],  (Long) defaultData[1], (double) defaultData[2]);
@@ -269,10 +270,8 @@ public class AbstractSwarmAgentInterface
 	public static void reward(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value )
 	{
 		if (round_time_unit < time) round_time_unit = time;
-		System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
+		//System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
 		currentSolution.addReward(time, me);
-		
-		System.out.println(currentSolution);
 	}
 
 	

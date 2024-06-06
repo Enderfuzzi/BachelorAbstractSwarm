@@ -152,6 +152,7 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static double evaluation(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station )
 	{
+		
 		timeStatistic.time = time;
 		
 		if (time == 1 && timeStatistic.lastValue != 1) {
@@ -160,10 +161,9 @@ public class AbstractSwarmAgentInterface
 			
 			timeStatistic.newRun = true;
 			
+			//System.out.println("Number of runs: " + timeStatistic.numberOfRuns);
 			
-			if (timeStatistic.numberOfRuns == 20) {
-				System.out.print(bestSolution);
-			}
+			
 			
 			
 			if (timeStatistic.lastRunCompleted) timeStatistic.numberOfCompletedRuns++;
@@ -171,27 +171,37 @@ public class AbstractSwarmAgentInterface
 			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit < timeStatistic.lowestTimeUnit) {
 				timeStatistic.newBestRun = true;
 				
-				bestSolution = new FinishedSolution(currentSolution.getSolution());
+				
 				if (timeStatistic.roundTimeUnit > 0) {
 					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
 					timeStatistic.runsSinceCurrentBest = 0;
+					if (timeStatistic.numberOfRuns <= 20 || bestSolution == null ) {
+						bestSolution = new FinishedSolution(currentSolution.getSolution());
+						System.out.println(bestSolution);
+					}
+					
 				}
-				System.out.print(bestSolution);
+				//System.out.print(bestSolution);
 			} else {
 				timeStatistic.newBestRun = false;
 			}
 			
 			currentSolution.clear();
+			
 			System.out.println(timeStatistic);
 		} else {
 			timeStatistic.newRun = false;
 		}
 		
-		double result = 0.0;
+		double result = -1.0;
 		
-		if (timeStatistic.numberOfRuns <= 20) {
+		
+		if (timeStatistic.numberOfRuns <= 20 || bestSolution == null ) {
 			result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 		} else {
+			if (bestSolution == null) {
+				return random.nextDouble();
+			}
 			result = bestSolution.createStationValue(me, time, station);
 		}
 		
@@ -223,7 +233,7 @@ public class AbstractSwarmAgentInterface
 		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
 		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		//System.out.println("----------------------------------------------");
-		
+		if (result == -1.0) System.out.println("Base value");
 		return result;
 	}
 	
@@ -245,8 +255,10 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static Object communication( Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Object[] defaultData )
 	{
-		//System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
-		//		((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
+		if (timeStatistic.numberOfRuns == 20 || timeStatistic.numberOfRuns == 21) {
+			//System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
+			//		((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
+		}
 		if (round_time_unit < time) round_time_unit = time;
 		
 		currentSolution.addPrediction(time, me, (Station) defaultData[0],  (Long) defaultData[1], (double) defaultData[2]);

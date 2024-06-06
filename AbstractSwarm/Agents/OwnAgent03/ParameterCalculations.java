@@ -43,14 +43,14 @@ public class ParameterCalculations {
 					cell.resetMutateFaktor();
 						
 					if (cell.isEnabled() && cell.wasUsed()) {
-						System.out.println("Increase: " + cell.toString());
+						//System.out.println("Increase: " + cell.toString());
 						if (cell.getChanceForActivation() <= 0.3) {
 							cell.setChanceForActivation(cell.getChanceForActivation() * 2);
 						} else {
 							cell.setChanceForActivation(cell.getChanceForActivation() + cell.getChanceForActivation() * 0.3);
 						}	
 					} else {
-						System.out.println("Decrease: " + cell.toString());
+						//System.out.println("Decrease: " + cell.toString());
 						if (cell.getChanceForActivation() >= 0.7) {
 							cell.setChanceForActivation(cell.getChanceForActivation() / 2);
 						} else {
@@ -71,7 +71,7 @@ public class ParameterCalculations {
 				}
 			}
 				
-				InputOutput.printStatus(cells, timeStatistic);
+				//InputOutput.printStatus(cells, timeStatistic);
 				
 				for (Cell cell : cells.values()) {
 					cell.computeCellActivity();

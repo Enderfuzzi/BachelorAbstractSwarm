@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FinishedSolution {
@@ -8,6 +9,9 @@ public class FinishedSolution {
 	
 	public FinishedSolution(List<PlanEntry> solution) {
 		this.solution = new ArrayList<>(solution);
+		Collections.sort(this.solution);
+		System.out.println("Finished Solution");
+		System.out.println(this);
 	}
 	
 	public List<PlanEntry> getSolution() {
@@ -19,12 +23,14 @@ public class FinishedSolution {
 		for (int i = 0; i< solution.size(); i++) {
 			PlanEntry entry = solution.get(i);
 			//System.out.println(entry);
-			if (time < entry.predictionTime()) break;
+			//if (time < entry.predictionTime()) break;
 			if (time != entry.predictionTime()) continue;
-			if (me != entry.agent()) continue;
-			if (station != entry.station()) continue;
+			if (!me.name.equals(entry.agent().name)) continue;
+			if (!station.name.equals(entry.station().name)) continue;
 			//System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, i + 1));
-			return i + 1;
+			System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, 
+					i));
+			return solution.size() - i + 1 / (double) entry.arrivalTime();
 		}
 		//System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, 0));
 		return 0.0;

@@ -1,5 +1,8 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FinishedSolution {
 
@@ -8,6 +11,7 @@ public class FinishedSolution {
 	
 	public FinishedSolution(List<PlanEntry> solution) {
 		this.solution = new ArrayList<>(solution);
+		Collections.sort(solution);
 	}
 	
 	public List<PlanEntry> getSolution() {
@@ -16,18 +20,17 @@ public class FinishedSolution {
 	
 	
 	public double createStationValue(Agent me, long time, Station station) {
-		for (int i = 0; i< solution.size(); i++) {
+		for (int i = 0; i < solution.size(); i++) {
 			PlanEntry entry = solution.get(i);
 			//System.out.println(entry);
-			if (time < entry.predictionTime()) break;
 			if (time != entry.predictionTime()) continue;
-			if (me != entry.agent()) continue;
-			if (station != entry.station()) continue;
-			//System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, i + 1));
-			return i + 1;
+			if (!me.name.equals(entry.agent().name)) continue;
+			if (!station.name.equals(entry.station().name)) continue;
+			System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, solution.size() - i));
+			return solution.size() - i; 
 		}
 		//System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, 0));
-		return 0.0;
+		return 0;
 	}
 	
 	@Override
@@ -41,4 +44,22 @@ public class FinishedSolution {
 		return result.toString();
 	}
 	
+	
+	
+	public String predictedTimePlanning() {
+		HashMap<Agent, String> result = new HashMap<>();
+		for (PlanEntry entry : solution) {
+			if (!result.containsKey(entry.agent())) {
+				result.put(entry.agent(), entry.agent().name + ": ");
+			}
+			result.put(entry.agent(), result.get(entry.agent()) 
+					+ String.format("[%d,%d]",entry.arrivalTime(), entry.finishTime()));
+		}
+		StringBuilder builder = new StringBuilder();
+		for (Map.Entry<Agent, String> entry: result.entrySet()) {
+			builder.append(entry.getValue());
+			builder.append("\n");
+		}
+		return builder.toString();
+	}
 }

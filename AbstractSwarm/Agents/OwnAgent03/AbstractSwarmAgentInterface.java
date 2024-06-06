@@ -159,10 +159,11 @@ public class AbstractSwarmAgentInterface
 			timeStatistic.runsSinceCurrentBest++;
 			
 			timeStatistic.newRun = true;
+			System.out.println("New Run");
 			
-			
-			if (timeStatistic.numberOfRuns == 20) {
+			if (timeStatistic.numberOfRuns == 20 && bestSolution != null) {
 				System.out.print(bestSolution);
+				System.out.print(bestSolution.predictedTimePlanning());
 			}
 			
 			
@@ -170,15 +171,21 @@ public class AbstractSwarmAgentInterface
 			
 			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit < timeStatistic.lowestTimeUnit) {
 				timeStatistic.newBestRun = true;
-				
-				bestSolution = new FinishedSolution(currentSolution.getSolution());
+				if (bestSolution == null) {
+					bestSolution = new FinishedSolution(currentSolution.getSolution());
+				}
 				if (timeStatistic.roundTimeUnit > 0) {
 					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
 					timeStatistic.runsSinceCurrentBest = 0;
 				}
-				System.out.print(bestSolution);
+				//System.out.print(bestSolution);
 			} else {
 				timeStatistic.newBestRun = false;
+			}
+			
+			if (timeStatistic.lastRunCompleted && bestSolution != null) {
+				System.out.println(bestSolution);
+				System.out.println(bestSolution.predictedTimePlanning());
 			}
 			
 			currentSolution.clear();
@@ -189,7 +196,7 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		if (timeStatistic.numberOfRuns <= 20) {
+		if (timeStatistic.numberOfRuns <= 20 || bestSolution == null) {
 			result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 		} else {
 			result = bestSolution.createStationValue(me, time, station);
@@ -221,7 +228,7 @@ public class AbstractSwarmAgentInterface
 		// }
 		
 		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
-		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
+		System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		//System.out.println("----------------------------------------------");
 		
 		return result;

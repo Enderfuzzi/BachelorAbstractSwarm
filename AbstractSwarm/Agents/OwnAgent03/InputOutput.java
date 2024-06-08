@@ -37,6 +37,7 @@ public class InputOutput {
 					try {
 						cellWeight = Double.parseDouble(splited[1]);
 					} catch (NumberFormatException e) {
+						System.out.println("[Error] in loading Cells");
 						//TODO add format exception handling
 					}
 					result.put(parameter, new Cell(splited[0], cellWeight, parameter.getActivityScore()));
@@ -66,7 +67,7 @@ public class InputOutput {
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
-			
+			System.out.println("[Error] in saving Cells");
 		}
 	}
 	

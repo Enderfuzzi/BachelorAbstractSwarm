@@ -135,6 +135,7 @@ public class AbstractSwarmAgentInterface
 	
 	private static TimeStatistics timeStatistic = new TimeStatistics();
 	
+	private static boolean firstRun = true;
 	/**
 	 * This method allows an agent to perceive its current state and to perform
 	 * actions by returning an evaluation value for potential next target
@@ -152,6 +153,15 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static double evaluation(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station )
 	{
+		
+		
+		if (firstRun) {
+			firstRun = false;
+			currentSolution = new Solution();
+			timeStatistic = new TimeStatistics();
+			round_time_unit = 0;
+		}
+		
 		timeStatistic.time = time;
 		
 		if (time == 1 && timeStatistic.lastValue != 1) {
@@ -159,7 +169,7 @@ public class AbstractSwarmAgentInterface
 			timeStatistic.runsSinceCurrentBest++;
 			
 			timeStatistic.newRun = true;
-			System.out.println("New Run");
+			
 			
 			if (timeStatistic.numberOfRuns == 20 && bestSolution != null) {
 				System.out.print(bestSolution);
@@ -169,25 +179,49 @@ public class AbstractSwarmAgentInterface
 			
 			if (timeStatistic.lastRunCompleted) timeStatistic.numberOfCompletedRuns++;
 			
-			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit < timeStatistic.lowestTimeUnit) {
-				timeStatistic.newBestRun = true;
+			if (timeStatistic.lastRunCompleted) {
 				if (bestSolution == null) {
 					bestSolution = new FinishedSolution(currentSolution.getSolution());
+				} else {
+					FinishedSolution tmp = new FinishedSolution(currentSolution.getSolution());
+					System.out.println("TMP TWT: " + tmp.calculateTWT());
+					if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
+						bestSolution = tmp;
+					}
 				}
-				if (timeStatistic.roundTimeUnit > 0) {
-					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
-					timeStatistic.runsSinceCurrentBest = 0;
-				}
-				//System.out.print(bestSolution);
-			} else {
-				timeStatistic.newBestRun = false;
-			}
-			
-			if (timeStatistic.lastRunCompleted && bestSolution != null) {
 				System.out.println(bestSolution);
 				System.out.println(bestSolution.predictedTimePlanning());
 			}
 			
+			
+			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit <= timeStatistic.lowestTimeUnit) {
+				timeStatistic.newBestRun = true;
+				//if (timeStatistic.numberOfRuns <= 20 || bestSolution == null) {
+				/*
+					if (bestSolution == null) {
+						bestSolution = new FinishedSolution(currentSolution.getSolution());
+					} else {
+						FinishedSolution tmp = new FinishedSolution(currentSolution.getSolution());
+						System.out.println("TMP TWT: " + tmp.calculateTWT());
+						if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
+							bestSolution = tmp;
+						}
+					}
+					System.out.println(bestSolution);
+					System.out.println(bestSolution.predictedTimePlanning());
+				//}
+				 * 
+				 */
+				if (timeStatistic.roundTimeUnit > 0) {
+					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
+					timeStatistic.runsSinceCurrentBest = 0;
+				}
+			} else {
+				timeStatistic.newBestRun = false;
+			}
+			
+
+			if (bestSolution != null) bestSolution.reset();
 			currentSolution.clear();
 			System.out.println(timeStatistic);
 		} else {
@@ -196,8 +230,9 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		if (timeStatistic.numberOfRuns <= 20 || bestSolution == null) {
-			result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+		if (timeStatistic.numberOfRuns <= 50 || bestSolution == null) {
+			//result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+			result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 		} else {
 			result = bestSolution.createStationValue(me, time, station);
 		}
@@ -279,6 +314,7 @@ public class AbstractSwarmAgentInterface
 		if (round_time_unit < time) round_time_unit = time;
 		//System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
 		currentSolution.addReward(time, me);
+		GreedyCalculations.reward(me, others, stations, time, value, timeStatistic);
 	}
 
 	

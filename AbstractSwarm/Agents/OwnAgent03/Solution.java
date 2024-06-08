@@ -14,7 +14,7 @@ public class Solution {
 	
 	public void addPrediction(Long time, Agent agent, Station station, Long arrivalTime, double stationValue) {
 		//System.out.println("Agent: " + agent.name + " Visting: " + agent.visiting);
-		Prediction newPrediction = new Prediction(station, time, arrivalTime, stationValue);
+		Prediction newPrediction = new Prediction(station, time, arrivalTime , arrivalTime, stationValue);
 		if (!prediction.containsKey(agent)) {
 			prediction.put(agent, newPrediction);
 		} else {
@@ -23,7 +23,8 @@ public class Solution {
 			} else {
 				if (!agent.visiting) {
 					// consider the earliest decision for a station
-					Prediction manipulated = new Prediction(station, prediction.get(agent).predictionTime(), arrivalTime, stationValue);
+					Prediction manipulated = new Prediction(station, prediction.get(agent).predictionTime(),
+							prediction.get(agent).predictedArrivalTime() ,arrivalTime, stationValue);
 					prediction.put(agent, manipulated);
 				}
 			}
@@ -40,7 +41,8 @@ public class Solution {
 			Prediction currentPrediction = prediction.remove(agent);
 			if (currentPrediction == null) return;
 			plan.add(new PlanEntry(agent, currentPrediction.station(), 
-					currentPrediction.predictionTime(), currentPrediction.arrivalTime(), time, currentPrediction.stationValue()));
+					currentPrediction.predictionTime(), currentPrediction.predictedArrivalTime(), 
+					currentPrediction.arrivalTime(), time, currentPrediction.stationValue()));
 			agentsAtStations.remove(agent);
 			Collections.sort(plan);
 		}
@@ -70,7 +72,7 @@ public class Solution {
 	}
 }
 
-record Prediction(Station station, Long predictionTime, Long arrivalTime, double stationValue) {
+record Prediction(Station station, Long predictionTime,  Long predictedArrivalTime, Long arrivalTime, double stationValue) {
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Prediction prediction)) return false;

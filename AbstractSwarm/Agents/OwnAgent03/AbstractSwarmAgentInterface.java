@@ -170,8 +170,9 @@ public class AbstractSwarmAgentInterface
 			
 			timeStatistic.newRun = true;
 			
+			//System.out.println(new FinishedSolution(currentSolution.getSolution()).predictedTimePlanning());
 			
-			if (timeStatistic.numberOfRuns == 20 && bestSolution != null) {
+			if (timeStatistic.numberOfRuns == 100 && bestSolution != null) {
 				System.out.print(bestSolution);
 				System.out.print(bestSolution.predictedTimePlanning());
 			}
@@ -187,10 +188,11 @@ public class AbstractSwarmAgentInterface
 					System.out.println("TMP TWT: " + tmp.calculateTWT());
 					if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
 						bestSolution = tmp;
+						//System.out.println(bestSolution);
+						//System.out.println(bestSolution.predictedTimePlanning());
 					}
 				}
-				System.out.println(bestSolution);
-				System.out.println(bestSolution.predictedTimePlanning());
+				
 			}
 			
 			
@@ -230,7 +232,7 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		if (timeStatistic.numberOfRuns <= 50 || bestSolution == null) {
+		if (timeStatistic.numberOfRuns <= 100 || bestSolution == null) {
 			//result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 			result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 		} else {

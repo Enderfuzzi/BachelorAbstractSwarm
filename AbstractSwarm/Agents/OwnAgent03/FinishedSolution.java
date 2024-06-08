@@ -10,10 +10,17 @@ public class FinishedSolution {
 	
 	private List<PlanEntry> copy;
 	
+	private HashMap<Agent, Agent> mapping; 
+	
+	private HashMap<Long, List<Agent>> used;
+	
 	public FinishedSolution(List<PlanEntry> solution) {
 		this.solution = new ArrayList<>(solution);
 		this.copy = new ArrayList<>(solution);
+		this.mapping = new HashMap<>();
+		this.used = new HashMap<>();
 		Collections.sort(this.solution);
+		Collections.sort(this.copy);
 	}
 	
 	public List<PlanEntry> getSolution() {
@@ -22,11 +29,30 @@ public class FinishedSolution {
 	
 	
 	public double createStationValue(Agent me, long time, Station station) {
+		/*
+		for (Map.Entry<Agent, Agent> entry : mapping.entrySet() ) {
+			System.out.println(entry.getKey().name + " -> " + entry.getValue().name);
+		}
+		*/
 		for (int i = 0; i < solution.size(); i++) {
 			PlanEntry entry = solution.get(i);
-			if (time != entry.predictionTime()) continue;
-			if (!me.type.name.equals(entry.agent().type.name)) continue;
-			if (!station.name.equals(entry.station().name)) continue;			
+			if (time < entry.predictionTime()) continue;
+			if (me.type != entry.agent().type) continue;
+			if (!station.name.equals(entry.station().name)) continue;	
+			if (!mapping.containsKey(entry.agent())) {
+				mapping.put(entry.agent(), me);
+			} else {
+				if (mapping.get(entry.agent()) != me) continue;
+			}
+			
+			if (!used.containsKey(time)) {
+				used.put(time, new ArrayList<>());
+			}
+			
+			if (used.get(time).contains(me)) continue;
+			List<Agent> tmp = used.get(time);
+			tmp.add(me);
+			used.put(time, tmp);
 			//System.out.println(String.format("Time: %d Agent %s Station %s Index i: %d",time, me.name, station.name, 
 			//		i));
 			solution.remove(i);
@@ -37,6 +63,8 @@ public class FinishedSolution {
 	
 	public void reset() {
 		this.solution = new ArrayList<>(copy);
+		mapping.clear();
+		used.clear();
 	}
 	
 	public Long calculateTWT() {

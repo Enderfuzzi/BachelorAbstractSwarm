@@ -20,8 +20,8 @@ public class TimeStatistics {
 	@Override
 	public String toString() {
 		return String.format("[TimeStatistic] Last Run time Unit %d Last run completed %b Current best time unit: %d"
-				+ " Number of runs: %d Number of completed runs: %d Runs since best: %d ", 
-				roundTimeUnit, lastRunCompleted, lowestTimeUnit, numberOfRuns, numberOfCompletedRuns, runsSinceCurrentBest);
+				+ " Number of runs: %d Number of completed runs: %d Runs since best: %d New Run: %b", 
+				roundTimeUnit, lastRunCompleted, lowestTimeUnit, numberOfRuns, numberOfCompletedRuns, runsSinceCurrentBest, newRun);
 	}
 
 

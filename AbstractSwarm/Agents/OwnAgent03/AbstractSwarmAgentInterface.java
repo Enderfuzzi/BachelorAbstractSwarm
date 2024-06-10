@@ -223,7 +223,6 @@ public class AbstractSwarmAgentInterface
 			}
 			
 
-			if (bestSolution != null) bestSolution.reset();
 			currentSolution.clear();
 			System.out.println(timeStatistic);
 		} else {
@@ -232,12 +231,9 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		if (timeStatistic.numberOfRuns <= 100 || bestSolution == null) {
-			//result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
-			result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
-		} else {
-			result = bestSolution.createStationValue(me, time, station);
-		}
+		//result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+		result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+	
 		
 		
 		if (timeStatistic.newRun) {
@@ -265,7 +261,7 @@ public class AbstractSwarmAgentInterface
 		// }
 		
 		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
-		System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
+		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		//System.out.println("----------------------------------------------");
 		
 		return result;

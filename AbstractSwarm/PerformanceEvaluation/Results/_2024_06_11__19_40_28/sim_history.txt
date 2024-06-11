@@ -1,0 +1,9 @@
+DecisionTreeOptimizingAgent,CHANGEDManufacturingProcess.xml,100,20
+DecisionTreeOptimizingAgent,CHANGEDSupermarket.xml,100,20
+DecisionTreeOptimizingAgent,CHANGEDTreatments.xml,100,20
+DecisionTreeOptimizingAgent,NEWElevator.xml,100,20
+DecisionTreeOptimizingAgent,NEWPatientTransportation.xml,100,20
+DecisionTreeOptimizingAgent,NEWStartingJobs.xml,100,20
+DecisionTreeOptimizingAgent,NEWStorage2.xml,100,20
+DecisionTreeOptimizingAgent,SCALEDPackaging.xml,100,20
+DecisionTreeOptimizingAgent,SCALEDProductionLines.xml,100,20

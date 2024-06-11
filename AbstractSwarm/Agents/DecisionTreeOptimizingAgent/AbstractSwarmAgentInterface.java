@@ -185,7 +185,7 @@ public class AbstractSwarmAgentInterface
 					bestSolution = new FinishedSolution(currentSolution.getSolution());
 				} else {
 					FinishedSolution tmp = new FinishedSolution(currentSolution.getSolution());
-					System.out.println("TMP TWT: " + tmp.calculateTWT());
+					//System.out.println("TMP TWT: " + tmp.calculateTWT());
 					if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
 						bestSolution = tmp;
 						//System.out.println(bestSolution);
@@ -231,7 +231,6 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		//result = ParameterCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 		result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
 	
 		
@@ -244,21 +243,9 @@ public class AbstractSwarmAgentInterface
 		timeStatistic.lastRunCompleted = possibleLastRun(me, new ArrayList<Agent>(others.keySet()), stations);
 		if (timeStatistic.roundTimeUnit < time) timeStatistic.roundTimeUnit = time;
 		
-		// System.out.println("----------------------------------------------");
 		
 		
-		// if station has undirected time edge and is target = pref this station
 		
-		//int remainingVisits = remainingVisitsOfAStationType(me, me.previousTarget.type);
-		//if (remainingVisits > 0 && station.type == me.previousTarget.type) return 0.0;
-		
-		// System.out.println("Time: " + time);
-		// System.out.println(me.toString());
-		
-		// System.out.println(String.format("Agent: %s Frequency: %d Time: %d Target %s Previous target: %s Visiting: %b", me.name, me.frequency, time, me.target, me.previousTarget.name, me.visiting));
-		// for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
-		//	System.out.println(String.format("Station: %s, Value: %d", entry.getKey().name, entry.getValue()));
-		// }
 		
 		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
 		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));

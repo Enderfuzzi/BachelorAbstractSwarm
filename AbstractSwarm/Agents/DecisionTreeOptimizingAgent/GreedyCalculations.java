@@ -27,6 +27,9 @@ public class GreedyCalculations {
 	
 	private static boolean directedTimeEdges = false;
 	private static boolean undirectedTimeEdges = false;
+	private static boolean stationFrequency = false;
+	private static boolean agentFrequency = false;
+	
 	
 	private static List<Attribute> singleStrategies = new ArrayList<>();
 	private static HashMap<Attribute, Double> singleStrategyValue = new HashMap<>();
@@ -37,6 +40,10 @@ public class GreedyCalculations {
 	
 	private static WeightedList weightedList = new WeightedList();
 	
+	private static double addParamThreshold = 0.5;
+	private static double mutationThreshold = 0.2;
+	
+	private static int numberOfManipulations = 0;
 	
 	private static PriorityQueue<NodePair> maxHeap = new PriorityQueue<>(new Comparator<NodePair>() {
 		@Override
@@ -60,6 +67,42 @@ public class GreedyCalculations {
 			*/
 			directedTimeEdges = graphHasDirectedTimeEdges(stations);
 			undirectedTimeEdges = graphHasUndirectedTimeEdges(stations);
+			stationFrequency = graphHasStationFrequency(stations);
+			agentFrequency = graphHasAgentFrequency(me, others);
+			
+			attributeNodes.put(Attribute.STATION_FREQUENCY, new Node((OwnConsumer) GreedyCalculations::stationFrequency));
+			
+			
+			attributeNodes.put(Attribute.AGENT_FREQUENCY, new Node((OwnConsumer) GreedyCalculations::computeAgentFrequency));
+			
+			attributeNodes.put(Attribute.MAX_DISTRIBUTION, new Node((OwnConsumer) GreedyCalculations::maxDistribution));
+			
+			if (directedTimeEdges) {
+				attributeNodes.put(Attribute.INCOMING_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeIncomingConnectedStations));
+				attributeNodes.put(Attribute.OUTGOING_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeOutgoingConnectedStations));
+			}
+			if (undirectedTimeEdges) {
+				attributeNodes.put(Attribute.UNDIRECTED_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeUndirectedTimeConnectedStations));
+			}
+			attributeNodes.put(Attribute.PATH_COST, new Node(Operator.MULTIPLICATION, -1.0, new Node((OwnConsumer) GreedyCalculations::pathCost)));
+			attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::stationSize), new Node((OwnConsumer) GreedyCalculations::agentSize)));
+			attributeNodes.put(Attribute.AGENT_TIME, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::totalAgentTime), new Node((OwnConsumer) GreedyCalculations::estimatedWorkTimeLeft)));
+			
+			
+			evaluationTree = new Node(Operator.ADDITION, 
+					new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_FREQUENCY), attributeNodes.get(Attribute.AGENT_FREQUENCY)), 
+					new Node(Operator.ADDITION, attributeNodes.get(Attribute.PATH_COST),
+							new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_SPACE), attributeNodes.get(Attribute.AGENT_TIME))
+					)
+			);
+			
+			if (directedTimeEdges) {
+				evaluationTree = new Node(Operator.ADDITION, evaluationTree, new Node(Operator.ADDITION, attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION), attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION)));
+			}
+			
+			if (undirectedTimeEdges) {
+				evaluationTree = new Node(Operator.ADDITION, evaluationTree, attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+			}
 			
 			
 			
@@ -72,43 +115,21 @@ public class GreedyCalculations {
 		if (!otherStationsReachable(me, station)) {
 			return -100;
 		}
-		
-		
-		attributeNodes.put(Attribute.STATION_FREQUENCY, new Node((OwnConsumer) GreedyCalculations::stationFrequency));
-		
-		
-		attributeNodes.put(Attribute.AGENT_FREQUENCY, new Node((OwnConsumer) GreedyCalculations::computeAgentFrequency));
-		
-		if (directedTimeEdges) {
-			attributeNodes.put(Attribute.INCOMING_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeIncomingConnectedStations));
-			attributeNodes.put(Attribute.OUTGOING_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeOutgoingConnectedStations));
+		// agent to large
+		if (agentSize(me, others, station) > stationSize(me, others, station)) {
+			return -100;
 		}
-		if (undirectedTimeEdges) {
-			attributeNodes.put(Attribute.UNDIRECTED_TIME_CONNECTION, new Node((OwnConsumer) GreedyCalculations::computeUndirectedTimeConnectedStations));
-		}
-		attributeNodes.put(Attribute.PATH_COST, new Node(Operator.MULTIPLICATION, -1.0, new Node((OwnConsumer) GreedyCalculations::pathCost)));
-		attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::stationSize), new Node((OwnConsumer) GreedyCalculations::agentSize)));
-		attributeNodes.put(Attribute.AGENT_TIME, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::totalAgentTime), new Node((OwnConsumer) GreedyCalculations::estimatedWorkTimeLeft)));
-		
-		
-		evaluationTree = new Node(Operator.ADDITION, 
-				new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_FREQUENCY), attributeNodes.get(Attribute.AGENT_FREQUENCY)), 
-				new Node(Operator.ADDITION, attributeNodes.get(Attribute.PATH_COST),
-						new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_SPACE), attributeNodes.get(Attribute.AGENT_TIME))
-				)
-		);
-		
-		if (directedTimeEdges) {
-			evaluationTree = new Node(Operator.ADDITION, evaluationTree, new Node(Operator.ADDITION, attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION), attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION)));
+		//station is not reachable
+		if (pathCost(me.previousTarget.type, station.type) == -1) {
+			return -100;
 		}
 		
-		if (undirectedTimeEdges) {
-			evaluationTree = new Node(Operator.ADDITION, evaluationTree, attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
-		}
+		
 		
 		
 		if (firstRun && timeStatistic.newRun) {
 			for (Attribute attribute : attributeNodes.keySet()) {
+				singleStrategies.add(attribute);
 				singleStrategies.add(attribute);
 			}
 			Collections.shuffle(singleStrategies);
@@ -144,6 +165,44 @@ public class GreedyCalculations {
 						
 						activeNode = new Node(Operator.DIVISION, attributeNodes.get(first), attributeNodes.get(second));
 						 */
+						double randomValue = random.nextDouble();
+						/*
+						System.out.println("First Value: " + randomValue * 2 / maxHeap.peek().node().depth() + "Second: " + addParamThreshold);
+						
+						System.out.println("third Value: " + randomValue * (maxHeap.peek().node().depth() / 3.0) + "fourth: " + mutationThreshold);
+						System.out.println("Bevor: " + maxHeap.peek().node());
+						System.out.println("Number of Consumer: " + maxHeap.peek().node().numberOfConsumer());
+						System.out.println("Numnber of manipulations: " + numberOfManipulations); 
+						*/
+						if (maxHeap.peek() != null) { 
+							if (randomValue * 2 / maxHeap.peek().node().depth() >= addParamThreshold) {
+								activeNode = new Node(Operator.ADDITION, maxHeap.peek().node(), attributeNodes.get(weightedList.getRandomAttribute()));
+								numberOfManipulations++;
+							} else if (randomValue * (maxHeap.peek().node().depth() / 3.0) >= mutationThreshold) {
+								Node tree = new Node(maxHeap.peek().node());
+								if (randomValue >= 0.5) {
+									//System.out.println("Number of Operators: " + tree.numberOfOperators());
+									Node operator = tree.getOperatorNode(random.nextInt(tree.numberOfOperators()));
+									operator.setOperator(Operator.values()[random.nextInt(Operator.values().length)]);
+									activeNode = tree;
+									numberOfManipulations++;
+								} else {
+									//System.out.println("Number of Consumer: " + tree.numberOfConsumer());
+									Node consumer = tree.getConsumerNode(random.nextInt(tree.numberOfConsumer()));
+									consumer.setLeft(new Node(consumer));
+									consumer.setOperator(Operator.MULTIPLICATION);
+									consumer.setRight(new Node(random.nextDouble(2.0)));
+									activeNode = tree;
+									numberOfManipulations++;
+								}
+								
+							}
+						} else {
+							activeNode = evaluationTree;
+						}
+						
+						//System.out.println(activeNode);
+						
 					}
 					
 				
@@ -198,6 +257,11 @@ public class GreedyCalculations {
 		} else {
 			return station.space;
 		}
+		/*
+		 * if (station.type 
+		 * 
+		 * 
+		 */
 	}
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -215,6 +279,22 @@ public class GreedyCalculations {
 		} else {
 			return 0;
 		}
+	}
+	
+	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
+		if (me.necessities.getOrDefault(station, -1) > 0) {
+			return 2.0;
+		}
+		
+		double result = 0.0;
+		for (Object object : others.values()) {
+			if (object == null) continue;
+			Object[] communication = (Object[]) object;
+			if (((Station) communication[0]) == station) {
+				result -= 2.0;
+			}
+		}
+		return result + 2.0 * stationSize(me, others, station);
 	}
 	
 	private static int stationSize(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -236,7 +316,7 @@ public class GreedyCalculations {
 				counter += 1;
 			}
 		}
-		System.out.println("Station target: " + station.name + " Number: " + counter);
+		//System.out.println("Station target: " + station.name + " Number: " + counter);
 		return counter;
 	}
 	
@@ -476,7 +556,20 @@ public class GreedyCalculations {
 		return false;
 	}
 	
+	private static boolean graphHasStationFrequency(List<Station> stations) {
+		for (Station station : stations) {
+			if (station.frequency != -1) return true;
+		}
+		return false;
+	}
 	
+	private static boolean graphHasAgentFrequency(Agent me, HashMap<Agent, Object> others) {
+		if (me.frequency != -1) return true;
+		for (Agent agent : others.keySet()) {
+			if (agent.frequency != -1) return true;
+		}
+		return false;
+	}
 }
 
 record NodePair(Double value, Node node) {}
@@ -521,6 +614,7 @@ enum Attribute {
 	PATH_COST,
 	STATION_SPACE,
 	AGENT_TIME,
+	MAX_DISTRIBUTION,
 	
 	;
 }
@@ -546,10 +640,13 @@ enum Operator {
 		if (this == SUBTRACTION) return first - second;
 		if (this == MULTIPLICATION) return first * second;
 		if (this == DIVISION) {
-			if (second == 0) return first / 1.0;
+			if (second == 0.0) return first / 1.0;
 			return first / second;
 		}
-		if (this == MODULO) return first % second;
+		if (this == MODULO) {
+			if (second == 0.0) return first % 1;
+			return first % second;
+		}
 		return 0;
 	}
 	
@@ -642,6 +739,36 @@ class Node {
 		if (this.left != null) return this.left.depth() + 1;
 		if (this.right != null) return this.right.depth() + 1;
 		return Math.max(this.left.depth(), this.right.depth()) + 1;
+	}
+	
+	public int numberOfOperators() {
+		if (isLeaf()) return 0;
+		if (this.left != null && this.right == null) return this.left.numberOfOperators() + 1;
+		if (this.right != null && this.left == null) return this.right.numberOfOperators() + 1;
+		return this.left.numberOfOperators() + this.right.numberOfOperators() + 1;
+	}
+	
+	public Node getOperatorNode(int index) {
+		if (index == 0) return this;
+		if (this.left != null && index <= this.left.numberOfOperators()) return this.left.getOperatorNode(index - 1);
+		if (this.left != null && this.right != null) this.right.getOperatorNode(index - this.left.numberOfOperators() - 1);
+		return this;
+	}
+	
+	public int numberOfConsumer() {
+		int result = this.hasConsumer() ? 1 : 0;
+		if (this.left != null && this.right == null) return this.left.numberOfConsumer() + result;
+		if (this.right != null && this.left == null) return this.right.numberOfConsumer() + result;
+		if (this.left == null && this.right == null) return result;
+		return this.left.numberOfConsumer() + this.right.numberOfConsumer() + result;
+	}
+	
+	public Node getConsumerNode(int index) {
+		if (index == 0) return this;
+		int value = hasConsumer() ? 1 : 0;
+		if (this.left != null && index <= this.left.numberOfConsumer()) return this.left.getConsumerNode(index - value);
+		if (this.left != null && this.right != null) this.right.getConsumerNode(index - this.left.numberOfConsumer() - value);
+		return this;
 	}
 	
 	public String toString() {

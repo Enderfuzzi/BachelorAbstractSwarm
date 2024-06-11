@@ -4,3 +4,4 @@
 **/Agents/**/*.class
 **/Agents/**/.classpath
 **/Agents/**/.project
+**/Agents/**/AbstractSwarmAgentInterfaceServer.java

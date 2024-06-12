@@ -1,6 +1,7 @@
 /*
-AbstractSwarm agent that makes random decisions
+AbstractSwarm agent that is based on a decision tree
 Copyright (C) 2020  Daan Apeldoorn (daan.apeldoorn@uni-mainz.de)
+Edited by Ole Brenner (ole.brenner@stud.uni-hannover.de)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
+
 /**
  * This class provides the three methods of the AbstractSwarm agent interface 
  * for state perception and performing actions, communication with other agents
@@ -124,8 +125,6 @@ import java.util.Random;
  */
 public class AbstractSwarmAgentInterface 
 {
-	/** The random generator used for random decisions. */
-	private static Random random = new Random();
 
 	private static Solution currentSolution = new Solution();
 	
@@ -136,6 +135,9 @@ public class AbstractSwarmAgentInterface
 	private static TimeStatistics timeStatistic = new TimeStatistics();
 	
 	private static boolean firstRun = true;
+	
+	private static final boolean TEXT_OUTPUT = false;
+	
 	/**
 	 * This method allows an agent to perceive its current state and to perform
 	 * actions by returning an evaluation value for potential next target
@@ -170,11 +172,11 @@ public class AbstractSwarmAgentInterface
 			
 			timeStatistic.newRun = true;
 			
-			//System.out.println(new FinishedSolution(currentSolution.getSolution()).predictedTimePlanning());
+			
 			
 			if (timeStatistic.numberOfRuns == 100 && bestSolution != null) {
-				System.out.print(bestSolution);
-				System.out.print(bestSolution.predictedTimePlanning());
+				if (TEXT_OUTPUT) System.out.print(bestSolution);
+				if (TEXT_OUTPUT) System.out.print(bestSolution.predictedTimePlanning());
 			}
 			
 			
@@ -185,46 +187,23 @@ public class AbstractSwarmAgentInterface
 					bestSolution = new FinishedSolution(currentSolution.getSolution());
 				} else {
 					FinishedSolution tmp = new FinishedSolution(currentSolution.getSolution());
-					//System.out.println("TMP TWT: " + tmp.calculateTWT());
 					if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
 						bestSolution = tmp;
-						//System.out.println(bestSolution);
-						//System.out.println(bestSolution.predictedTimePlanning());
+						timeStatistic.newBestRun = true;
+						if (timeStatistic.roundTimeUnit > 0) {
+							timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
+							timeStatistic.runsSinceCurrentBest = 0;
+						}
+					} else {
+						timeStatistic.newBestRun = false;
 					}
 				}
 				
 			}
 			
-			
-			if (timeStatistic.lastRunCompleted && timeStatistic.roundTimeUnit <= timeStatistic.lowestTimeUnit) {
-				timeStatistic.newBestRun = true;
-				//if (timeStatistic.numberOfRuns <= 20 || bestSolution == null) {
-				/*
-					if (bestSolution == null) {
-						bestSolution = new FinishedSolution(currentSolution.getSolution());
-					} else {
-						FinishedSolution tmp = new FinishedSolution(currentSolution.getSolution());
-						System.out.println("TMP TWT: " + tmp.calculateTWT());
-						if (tmp.calculateTWT() < bestSolution.calculateTWT()) {
-							bestSolution = tmp;
-						}
-					}
-					System.out.println(bestSolution);
-					System.out.println(bestSolution.predictedTimePlanning());
-				//}
-				 * 
-				 */
-				if (timeStatistic.roundTimeUnit > 0) {
-					timeStatistic.lowestTimeUnit = timeStatistic.roundTimeUnit;
-					timeStatistic.runsSinceCurrentBest = 0;
-				}
-			} else {
-				timeStatistic.newBestRun = false;
-			}
-			
 
 			currentSolution.clear();
-			System.out.println(timeStatistic);
+			if (TEXT_OUTPUT) System.out.println(timeStatistic);
 		} else {
 			timeStatistic.newRun = false;
 		}
@@ -244,12 +223,7 @@ public class AbstractSwarmAgentInterface
 		if (timeStatistic.roundTimeUnit < time) timeStatistic.roundTimeUnit = time;
 		
 		
-		
-		
-		
-		//System.out.println(String.format("Agent: %s Previous target: %s time: %d", me.name, me.previousTarget.name, me.time));
-		//System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
-		//System.out.println("----------------------------------------------");
+		if (TEXT_OUTPUT) System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		
 		return result;
 	}
@@ -272,8 +246,8 @@ public class AbstractSwarmAgentInterface
 	 */
 	public static Object communication( Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Object[] defaultData )
 	{
-		//System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
-		//		((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
+		if (TEXT_OUTPUT) System.out.println(String.format("[Communication] Agent: %s Time: %d Station: %s Time Unit %d Value: %f", me.name, time,
+				((Station) defaultData[0]).name, (Long) defaultData[1],  (double) defaultData[2]));
 		if (round_time_unit < time) round_time_unit = time;
 		
 		currentSolution.addPrediction(time, me, (Station) defaultData[0],  (Long) defaultData[1], (double) defaultData[2]);
@@ -297,7 +271,7 @@ public class AbstractSwarmAgentInterface
 	public static void reward(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value )
 	{
 		if (round_time_unit < time) round_time_unit = time;
-		//System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
+		if (TEXT_OUTPUT) System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
 		currentSolution.addReward(time, me);
 		GreedyCalculations.reward(me, others, stations, time, value, timeStatistic);
 	}

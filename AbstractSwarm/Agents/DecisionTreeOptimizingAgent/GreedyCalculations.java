@@ -1,3 +1,4 @@
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +46,24 @@ public class GreedyCalculations {
 	
 	private static int numberOfManipulations = 0;
 	
+	private static double randomPathValue;
+	private static double pathThreshold = 0.33;
+	
+	public static double randomSpaceValue;
+	public static double spaceThreshold = 0.33;
+	
+	public static double randomDistributionValue;
+	public static double distributionThreshold = 0.33;
+	
+	public static double randomDirectedTimeValue;
+	public static double directedTimeThreshold = 0.25;
+	
+	public static double randomUndirectedTimeValue; 
+	public static double undirectedTimeThreshold = 0.25;
+	
+	public static RandomStatistic statistic = new RandomStatistic("path", "space", "distribution");
+	
+	
 	private static PriorityQueue<NodePair> maxHeap = new PriorityQueue<>(new Comparator<NodePair>() {
 		@Override
 		public int compare(NodePair first, NodePair second) {
@@ -60,11 +79,7 @@ public class GreedyCalculations {
 		
 		
 		if (firstRun) {
-			/*
-			for (Attribute attribute : Attribute.values()) {
-				attributeNodes.put(attribute, new Node(0));
-			}
-			*/
+
 			directedTimeEdges = graphHasDirectedTimeEdges(stations);
 			undirectedTimeEdges = graphHasUndirectedTimeEdges(stations);
 			stationFrequency = graphHasStationFrequency(stations);
@@ -98,11 +113,15 @@ public class GreedyCalculations {
 			
 			if (directedTimeEdges) {
 				evaluationTree = new Node(Operator.ADDITION, evaluationTree, new Node(Operator.ADDITION, attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION), attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION)));
+				statistic.add("directedTime");
 			}
 			
 			if (undirectedTimeEdges) {
 				evaluationTree = new Node(Operator.ADDITION, evaluationTree, attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+				statistic.add("undirectedTime");
 			}
+			
+			
 			
 			
 			
@@ -125,100 +144,129 @@ public class GreedyCalculations {
 		}
 		
 		
-		
-		
-		if (firstRun && timeStatistic.newRun) {
-			for (Attribute attribute : attributeNodes.keySet()) {
-				singleStrategies.add(attribute);
-				singleStrategies.add(attribute);
-			}
-			Collections.shuffle(singleStrategies);
+		if (timeStatistic.newRun) {
+			
+			statistic.newRandom();
+			statistic.reset();
+			/*
+			 randomPathValue = random.nextDouble();
+			 randomSpaceValue = random.nextDouble();
+			 randomDistributionValue = random.nextDouble();
+			if (directedTimeEdges) randomDirectedTimeValue = random.nextDouble();
+			if (undirectedTimeEdges) randomDirectedTimeValue = random.nextDouble();
+			
+			if (!directedTimeEdges) directedTimeThreshold = 0.0; 
+			if (!undirectedTimeEdges) undirectedTimeThreshold = 0.0;
+			*/
+			 
+			/*
+			pathThreshold = pathThreshold == Math.max(pathThreshold, Math.max(distributionThreshold, Math.max(spaceThreshold, Math.max(directedTimeThreshold, undirectedTimeThreshold)))) ? 0.4 : 0.33;
+			spaceThreshold = spaceThreshold == Math.max(pathThreshold, Math.max(distributionThreshold, Math.max(spaceThreshold, Math.max(directedTimeThreshold, undirectedTimeThreshold)))) ? 0.4 : 0.33;
+			distributionThreshold = distributionThreshold == Math.max(pathThreshold, Math.max(distributionThreshold, Math.max(spaceThreshold, Math.max(directedTimeThreshold, undirectedTimeThreshold)))) ? 0.4 : 0.33;
+			directedTimeThreshold = directedTimeThreshold == Math.max(pathThreshold, Math.max(distributionThreshold, Math.max(spaceThreshold, Math.max(directedTimeThreshold, undirectedTimeThreshold)))) ? 0.4 : 0.33;
+			undirectedTimeThreshold = undirectedTimeThreshold == Math.max(pathThreshold, Math.max(distributionThreshold, Math.max(spaceThreshold, Math.max(directedTimeThreshold, undirectedTimeThreshold)))) ? 0.4 : 0.33;
+			 */
+			 /*
+			 if (pathThreshold > spaceThreshold && pathThreshold > distributionThreshold) {
+				 pathThreshold = 0.4;
+				 spaceThreshold = 0.33;
+				 distributionThreshold = 0.33;
+			 } else if (spaceThreshold > pathThreshold && spaceThreshold > distributionThreshold) {
+				 pathThreshold = 0.33;
+				 spaceThreshold = 0.4;
+				 distributionThreshold = 0.33;
+			 } else if (distributionThreshold> pathThreshold && distributionThreshold > spaceThreshold) {
+				 pathThreshold = 0.33;
+				 spaceThreshold = 0.33;
+				 distributionThreshold = 0.4;
+			 } 
+			 */
+			 
 		}
 		
-		if (timeStatistic.newRun) {
-			//perfect solution has been found
-			if (maxHeap.peek() != null && maxHeap.peek().value() == 1.0) {
-				activeNode = maxHeap.peek().node();
-			} else {
-				
-				if (activeNode != null) {
-					maxHeap.add(new NodePair(activeValue, activeNode));
-				}
-				// first use the single strategies
-				if (singleStrategies.size() > 0) {
-					currentAttribute = singleStrategies.remove(0);
-					activeNode = attributeNodes.get(currentAttribute);
-					//System.out.println(currentAttribute);
-				} else {
-					if (currentAttribute != null) {
-						for (Map.Entry<Attribute, Double> entry : singleStrategyValue.entrySet()) {
-							weightedList.add(entry.getKey(), entry.getValue());
-						}
-						
-						activeNode = evaluationTree;
-					} else {
-						// combine two base methods 
-						/*
-						Attribute first = weightedList.getRandomAttribute();
-						Attribute second = weightedList.getRandomAttribute();
-						while (first == second) second = weightedList.getRandomAttribute();
-						
-						activeNode = new Node(Operator.DIVISION, attributeNodes.get(first), attributeNodes.get(second));
-						 */
-						double randomValue = random.nextDouble();
-						/*
-						System.out.println("First Value: " + randomValue * 2 / maxHeap.peek().node().depth() + "Second: " + addParamThreshold);
-						
-						System.out.println("third Value: " + randomValue * (maxHeap.peek().node().depth() / 3.0) + "fourth: " + mutationThreshold);
-						System.out.println("Bevor: " + maxHeap.peek().node());
-						System.out.println("Number of Consumer: " + maxHeap.peek().node().numberOfConsumer());
-						System.out.println("Numnber of manipulations: " + numberOfManipulations); 
-						*/
-						if (maxHeap.peek() != null) { 
-							if (randomValue * 2 / maxHeap.peek().node().depth() >= addParamThreshold) {
-								activeNode = new Node(Operator.ADDITION, maxHeap.peek().node(), attributeNodes.get(weightedList.getRandomAttribute()));
-								numberOfManipulations++;
-							} else if (randomValue * (maxHeap.peek().node().depth() / 3.0) >= mutationThreshold) {
-								Node tree = new Node(maxHeap.peek().node());
-								if (randomValue >= 0.5) {
-									//System.out.println("Number of Operators: " + tree.numberOfOperators());
-									Node operator = tree.getOperatorNode(random.nextInt(tree.numberOfOperators()));
-									operator.setOperator(Operator.values()[random.nextInt(Operator.values().length)]);
-									activeNode = tree;
-									numberOfManipulations++;
-								} else {
-									//System.out.println("Number of Consumer: " + tree.numberOfConsumer());
-									Node consumer = tree.getConsumerNode(random.nextInt(tree.numberOfConsumer()));
-									consumer.setLeft(new Node(consumer));
-									consumer.setOperator(Operator.MULTIPLICATION);
-									consumer.setRight(new Node(random.nextDouble(2.0)));
-									activeNode = tree;
-									numberOfManipulations++;
-								}
-								
-							}
-						} else {
-							activeNode = evaluationTree;
-						}
-						
-						//System.out.println(activeNode);
-						
-					}
-					
-				
-					
-					currentAttribute = null;
-				}
-			}
-			
-			activeValue = 1.0;
-		} 
+		Node currentNode = new Node(0);
+		/*
+		System.out.println(String.format("Path Value: %f Threshold: %f",randomPathValue,pathThreshold ));
+		System.out.println(String.format("Space Value: %f Threshold: %f",randomSpaceValue,spaceThreshold ));
+		System.out.println(String.format("Distribution Value: %f Threshold: %f",randomDistributionValue,distributionThreshold));
+		System.out.println(String.format("Directed Time Value: %f Threshold: %f",randomDirectedTimeValue, directedTimeThreshold));
+		System.out.println(String.format("Undirected Time Value: %f Threshold: %f",randomUndirectedTimeValue, directedTimeThreshold));
+		*/
+		//System.out.println(statistic);
 		
+		/*
+		if (randomPathValue <= pathThreshold) {
+			currentNode.addNode(attributeNodes.get(Attribute.PATH_COST));
+		}
+		
+		if (randomSpaceValue <= spaceThreshold) {
+			currentNode.addNode(attributeNodes.get(Attribute.STATION_SPACE));
+		}
+		
+		if (randomDistributionValue <= distributionThreshold) {
+
+			if (stationFrequency) {
+				currentNode.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
+				
+			}
+			if (agentFrequency) {
+				currentNode.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
+				
+			}
+		}
+		
+		if (randomDirectedTimeValue <= directedTimeThreshold) {
+			currentNode.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
+		}
+		
+		if ((!stationFrequency && !agentFrequency || randomDistributionValue > distributionThreshold) && randomSpaceValue > spaceThreshold && randomPathValue > pathThreshold) {
+			currentNode.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
+		}
+		*/
+		
+		if (statistic.compare("path")) {
+			currentNode.addNode(attributeNodes.get(Attribute.PATH_COST));
+		}
+		
+		if (statistic.compare("space")) {
+			currentNode.addNode(attributeNodes.get(Attribute.STATION_SPACE));
+		}
+		
+		if (statistic.compare("distribution")) {
+
+			if (stationFrequency) {
+				currentNode.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
+				
+			}
+			if (agentFrequency) {
+				currentNode.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
+				
+			}
+		}
+		
+		if (statistic.compare("directedTime")) {
+			currentNode.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
+			currentNode.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
+		}
+		
+		if (statistic.compare("undirectedTime")) {
+			currentNode.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+		}
+		
+		
+		
+		if ((!stationFrequency && !agentFrequency || !statistic.compare("distribution")) && !statistic.compare("space") && statistic.compare("path")) {
+			currentNode.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
+		}
+		
+		
+	
+		//System.out.println(currentNode);
 		
 		firstRun = false;
 		
-		if (activeNode != null) {
-			return activeNode.evaluate(me, others, station);
+		if (currentNode != null) {
+			return currentNode.evaluate(me, others, station);
 		}
 		
 		return evaluationTree.evaluate(me, others, station);
@@ -229,6 +277,8 @@ public class GreedyCalculations {
 			long time, Object[] defaultData, TimeStatistics timeStatistic){
 	}
 	
+	public static long lastValue = 0;
+	
 	public static void reward(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value,
 			TimeStatistics timeStatistic
 			) {
@@ -236,27 +286,102 @@ public class GreedyCalculations {
 			if (activeValue > value) activeValue = value;
 		}
 		
+		/*
+		if (randomPathValue <= pathThreshold) {
+			pathThreshold += 0.1;
+		}
+		if (randomSpaceValue <= spaceThreshold) {
+			spaceThreshold += 0.1;
+		}
+		if (randomDistributionValue <= distributionThreshold) {
+			distributionThreshold += 0.1;
+		}
+		
+		if (directedTimeEdges && randomDirectedTimeValue <= directedTimeThreshold) {
+			directedTimeThreshold += 0.1;
+		}
+		
+		if (undirectedTimeEdges && randomUndirectedTimeValue <= undirectedTimeThreshold) {
+			undirectedTimeThreshold += 0.1;
+		}
+		*/
+		statistic.triggerCompare();
 		
 		
-		if (currentAttribute != null) {
-			if (!singleStrategyValue.containsKey(currentAttribute)) {
-				singleStrategyValue.put(currentAttribute, value);
-			} else {
-				if (singleStrategyValue.get(currentAttribute) > value) {
-					singleStrategyValue.put(currentAttribute, value);
-				}
-			}
-		}		
-		//System.out.println(singleStrategyValue);
+		/*
+		double sumValue = pathThreshold + spaceThreshold + distributionThreshold;
+		if (directedTimeEdges) sumValue += directedTimeThreshold;
+		if (undirectedTimeEdges) sumValue += undirectedTimeThreshold;
+		
+		
+		pathThreshold /= sumValue;
+		spaceThreshold /= sumValue;
+		distributionThreshold /= sumValue;
+		directedTimeThreshold /= sumValue;
+		undirectedTimeThreshold /= sumValue;
+		*/
+		statistic.normalize();
+		
+		
+		if (lastValue != time) {
+			lastValue = time;
+			
+			statistic.newRandom();
+			/*
+			 randomPathValue = random.nextDouble();
+			 randomSpaceValue = random.nextDouble();
+			 randomDistributionValue = random.nextDouble();
+			 
+			 if (directedTimeEdges) randomDirectedTimeValue = random.nextDouble();
+			 if (undirectedTimeEdges) randomUndirectedTimeValue = random.nextDouble();
+			*/
+		}
 	}
 	
 	
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
+		/*
 		if ((stationSize(me, others,station) * station.type.components.size()) - (stationTargeted(me, others, station) * agentSize(me, others, station)) > 0) {
 			return ((agentSize(me, others, station) * me.type.components.size()) / ((stationSize(me, others, station) * station.type.components.size())) - stationTargeted(me, others, station));
 		} else {
 			return station.space;
 		}
+		*/
+		
+		double result = 0.0;
+		if (me.type.size * me.type.components.size() <= stationSize(me, others, station)) {
+			result += 1.0;
+		}
+		
+		List<StationType> used = new ArrayList<>();
+		for (VisitEdge edge : me.type.visitEdges) {
+			StationType stationType = (StationType) edge.connectedType;
+			if (used.contains(stationType)) continue;
+			used.add(stationType);
+			if (me.type.size * me.type.components.size() > stationSize(stationType)) {
+				result -= 0.5;
+			}
+			
+		}
+		
+		List<AgentType> usedAgent = new ArrayList<>();
+		usedAgent.add(me.type);
+		for (Agent agent : others.keySet()) {
+			if (usedAgent.contains(agent.type)) continue;
+			usedAgent.add(agent.type);
+			if (agent.type.size * agent.type.components.size() > stationSize(me, others, station)) {
+				result += 0.5;
+			}
+		}
+		
+		if (station.space != -1) {
+			if (station.space > me.type.size) {
+				result += 0.5;
+			}
+		}
+		
+		return result;
+		
 		/*
 		 * if (station.type 
 		 * 
@@ -302,6 +427,11 @@ public class GreedyCalculations {
 		return station.type.space;
 	}
 	
+	private static int stationSize(StationType station) {
+		if (station.space == -1) return 1;
+		return station.space;
+	}
+	
 	private static int agentSize(Agent me,  HashMap<Agent, Object> others, Station station) {
 		if (me.type.size == -1) return 1;
 		return me.type.size;
@@ -339,9 +469,11 @@ public class GreedyCalculations {
 			result += pair.cost;
 			result += stationTargeted(me, others, pair.station);
 		}
+		/*
 		if (outgoingTimeConnectedStations.size() > 0) {
 			result /= 2.0 * outgoingTimeConnectedStations.size();
 		}
+		*/
 		return result;
 	}
 	
@@ -353,9 +485,11 @@ public class GreedyCalculations {
 			result += pair.cost;
 			result += stationTargeted(me, others, pair.station);
 		}
+		/*
 		if (incomingTimeConnectedStations.size() > 0) {
 			result /= 2.0 * incomingTimeConnectedStations.size();
 		}
+		*/
 		return result;
 	}
 	
@@ -366,9 +500,7 @@ public class GreedyCalculations {
 			result += timeAtStation(me, others, s);
 			result += stationTargeted(me, others, s);
 		}
-		if (undirectedStations.size() > 0) {
-			result /= 2.0 * undirectedStations.size();
-		}
+		//System.out.println("Station: " + station.name + " Weight " + result);
 		return result;
 	}
 	
@@ -726,6 +858,28 @@ class Node {
 		this.right = right;
 	}
 	
+	public void addNode(Node newNode) {
+		if (isLeaf()) {
+			operator = Operator.ADDITION;
+			if (hasConsumer()) {
+				this.left = new Node(consumer);
+				consumer = null;
+			} else {
+				this.left = new Node(value);
+				value = 0;
+			}
+			this.right = newNode;
+			return;
+		}
+		
+		if (left.depth() <= right.depth()) {
+			left.addNode(newNode);
+		} else {
+			right.addNode(newNode);
+		}
+		
+	}
+	
 	public double evaluate(Agent me, HashMap<Agent, Object> others, Station station) {
 		if (isLeaf() && !hasConsumer()) return value;
 		if (hasConsumer()) return consumer.compute(me, others, station);
@@ -784,6 +938,121 @@ class Node {
 	
 }
 
-
+class RandomStatistic {
+	
+	HashMap<String , Pair> map = new HashMap<>();
+	
+	public RandomStatistic(String...strings) {
+		for (String name : strings) {
+			this.add(name);
+		}
+	}
+	
+	
+	public void add(String name) {
+		map.put(name, new Pair(0.33));
+	}
+	
+	public boolean compare(String name) {
+		if (map.containsKey(name)) {
+			return map.get(name).compare();
+		}
+		return false;
+	}
+	
+	public void reset() {
+		Pair highest = null;
+		for (Pair pair : map.values()) {
+			if (highest == null || highest.getThreshold() < pair.getThreshold()) {
+				highest = pair;
+			}
+		}
+		for (Pair pair : map.values()) {
+			if (pair != highest) {
+				pair.setThreshold(0.30);
+			} else {
+				pair.setThreshold(0.4);
+			}
+		}
+	}
+	
+	public void newRandom() {
+		for (Pair pair : map.values()) {
+			pair.newRandom();
+		}
+	}
+	
+	public void increaseThreshold(String name, double value) {
+		if (map.containsKey(name)) {
+			map.get(name).setThreshold(map.get(name).getThreshold() + value);
+		}
+	}
+	
+	public void triggerCompare() {
+		for (Pair pair : map.values()) {
+			if (pair.compare()) {
+				pair.increaseThreshold(0.1);
+			}
+		}
+	}
+	
+	public void normalize() {
+		double sum = 0.0;
+		for (Pair pair : map.values()) {
+			sum += pair.getThreshold();
+		}
+		if (sum != 0.0) {
+			for (Pair pair : map.values()) {
+				pair.setThreshold(pair.getThreshold() / sum);
+			}
+		}
+	}
+	
+	private class Pair {
+		private static Random random = new Random();
+		
+		private double randomValue;
+		private double threshold;
+		
+		public Pair(double threshold) {
+			this.threshold = threshold;
+			newRandom();
+		}
+		
+		public void setThreshold(double value) {
+			this.threshold = value;
+		}
+		
+		public void increaseThreshold(double value) {
+			this.threshold += value;
+		}
+		
+		public double getThreshold() {
+			return this.threshold;
+		}
+		
+		public void newRandom() {
+			this.randomValue = random.nextDouble();
+		}
+		
+		public boolean compare() {
+			return randomValue <= threshold;
+		}
+		@Override
+		public String toString() {
+			return String.format("[Random: %f Threshold %f]", randomValue, threshold);
+		}
+		
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<String, Pair> entry : map.entrySet()) {
+			sb.append(String.format("[RandomStatistic]: %s -> %s\n", entry.getKey(), entry.getValue().toString()));
+		}
+		return sb.toString();
+	}
+	
+}
 
 

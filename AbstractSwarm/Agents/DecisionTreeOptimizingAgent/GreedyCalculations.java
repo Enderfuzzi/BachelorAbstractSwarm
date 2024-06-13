@@ -14,8 +14,6 @@ public class GreedyCalculations {
 	
 	private static boolean firstRun = true;
 	
-	private static Node evaluationTree;
-	
 	private static boolean directedTimeEdges = false;
 	private static boolean undirectedTimeEdges = false;
 	private static boolean stationFrequency = false;
@@ -27,6 +25,7 @@ public class GreedyCalculations {
 	
 	public static RandomStatistic statistic = new RandomStatistic("path", "space", "distribution");
 	
+	private static final boolean TEXT_OUTPUT = false;
 	
 	public static double evaluate(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station,
 			TimeStatistics timeStatistic) {
@@ -57,21 +56,13 @@ public class GreedyCalculations {
 			attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::stationSize), new Node((OwnConsumer) GreedyCalculations::agentSize)));
 			attributeNodes.put(Attribute.AGENT_TIME, new Node(Operator.DIVISION, new Node((OwnConsumer) GreedyCalculations::totalAgentTime), new Node((OwnConsumer) GreedyCalculations::estimatedWorkTimeLeft)));
 			
-			
-			evaluationTree = new Node(Operator.ADDITION, 
-					new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_FREQUENCY), attributeNodes.get(Attribute.AGENT_FREQUENCY)), 
-					new Node(Operator.ADDITION, attributeNodes.get(Attribute.PATH_COST),
-							new Node(Operator.ADDITION, attributeNodes.get(Attribute.STATION_SPACE), attributeNodes.get(Attribute.AGENT_TIME))
-					)
-			);
+		
 			
 			if (directedTimeEdges) {
-				evaluationTree = new Node(Operator.ADDITION, evaluationTree, new Node(Operator.ADDITION, attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION), attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION)));
 				statistic.add("directedTime");
 			}
 			
 			if (undirectedTimeEdges) {
-				evaluationTree = new Node(Operator.ADDITION, evaluationTree, attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
 				statistic.add("undirectedTime");
 			}
 			
@@ -265,7 +256,7 @@ public class GreedyCalculations {
 				counter += 1;
 			}
 		}
-		//System.out.println("Station target: " + station.name + " Number: " + counter);
+		if (TEXT_OUTPUT) System.out.println("Station target: " + station.name + " Number: " + counter);
 		return counter;
 	}
 	
@@ -340,7 +331,7 @@ public class GreedyCalculations {
 	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
 		List<Station> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
-			//System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
+			if (TEXT_OUTPUT) System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
 			if (edge.incoming || edge.outgoing) continue;
 			if (edge.connectedType instanceof StationType stationType) {
 					result.addAll(stationType.components);
@@ -366,7 +357,7 @@ public class GreedyCalculations {
 			if (used.contains(current.station())) continue;
 			used.add(current.station());
 			if (current.station() == target) {
-				//System.out.println(String.format("Path calculation: %s to %s with cost: %d", start.name, target.name, current.cost()));
+				if (TEXT_OUTPUT) System.out.println(String.format("Path calculation: %s to %s with cost: %d", start.name, target.name, current.cost()));
 				return current.cost();
 			}
 			
@@ -380,6 +371,8 @@ public class GreedyCalculations {
 	}
 	
 	private static int pathCost(Agent me, HashMap<Agent, Object> others, Station station) {
+		// speed is 1 for each scenario
+		// if speed should be considered then we have to divide the path cost with the agent speed
 		return pathCost(me.previousTarget.type, station.type);
 	}
 	

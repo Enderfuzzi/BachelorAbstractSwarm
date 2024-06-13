@@ -88,8 +88,12 @@ public class GreedyCalculations {
 		
 		
 		if (timeStatistic.newRun) {
+			//System.out.println(statistic);
+			
 			statistic.newRandom();
 			statistic.reset();
+			
+			//System.out.println(statistic.getAverage());
 		}
 		
 		Node currentNode = new Node(0);
@@ -650,6 +654,8 @@ class RandomStatistic {
 	
 	HashMap<String , Pair> map = new HashMap<>();
 	
+	HashMap<String, List<Double>> pastValues = new HashMap<>();
+	
 	public RandomStatistic(String...strings) {
 		for (String name : strings) {
 			this.add(name);
@@ -669,17 +675,18 @@ class RandomStatistic {
 	}
 	
 	public void reset() {
+		addToPast();
 		Pair highest = null;
 		for (Pair pair : map.values()) {
 			if (highest == null || highest.getThreshold() < pair.getThreshold()) {
 				highest = pair;
 			}
 		}
-		for (Pair pair : map.values()) {
-			if (pair != highest) {
-				pair.setThreshold(0.30);
+		for (Map.Entry<String, Pair> entry : map.entrySet()) {
+			if (entry.getValue() != highest) {
+				entry.getValue().setThreshold(computeAverage(entry.getKey()));
 			} else {
-				pair.setThreshold(0.4);
+				entry.getValue().setThreshold(computeAverage(entry.getKey()));
 			}
 		}
 	}
@@ -714,6 +721,37 @@ class RandomStatistic {
 				pair.setThreshold(pair.getThreshold() / sum);
 			}
 		}
+	}
+	
+	private void addToPast() {
+		for (Map.Entry<String, Pair> entry : map.entrySet()) {
+			if (!pastValues.containsKey(entry.getKey())) {
+				pastValues.put(entry.getKey(), new ArrayList<>());
+			}
+			List<Double> tmpList = pastValues.get(entry.getKey());
+			tmpList.add(entry.getValue().getThreshold());
+			pastValues.put(entry.getKey(), tmpList);
+		}
+	}
+	
+	public double computeAverage(String name) {
+		if (pastValues.containsKey(name)) {
+			double sum = 0.0;
+			for (Double d : pastValues.get(name)) {
+				sum += d;
+			}
+			return sum / (double) pastValues.get(name).size();
+			
+		}
+		return 0.0;
+	}
+	
+	public String getAverage() {
+		StringBuilder sb = new StringBuilder();
+		for (String name : map.keySet()) {
+			sb.append(String.format("[TimeStatistic Average]: %s -> %f\n", name, computeAverage(name)));
+		}
+		return sb.toString();
 	}
 	
 	private class Pair {

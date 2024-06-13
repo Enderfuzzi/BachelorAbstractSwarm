@@ -156,7 +156,6 @@ public class AbstractSwarmAgentInterface
 	public static double evaluation(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station )
 	{
 		
-		
 		if (firstRun) {
 			firstRun = false;
 			currentSolution = new Solution();
@@ -210,7 +209,7 @@ public class AbstractSwarmAgentInterface
 		
 		double result = 0.0;
 		
-		result = GreedyCalculations.evaluate(me, others, stations, time, station, timeStatistic);
+		result = Calculations.evaluate(me, others, stations, time, station, timeStatistic);
 	
 		
 		
@@ -273,7 +272,7 @@ public class AbstractSwarmAgentInterface
 		if (round_time_unit < time) round_time_unit = time;
 		if (TEXT_OUTPUT) System.out.println(String.format("[Reward] Agent: %s Previous Target: %s Time: %d Value: %f", me.name, me.previousTarget.name, time, value));
 		currentSolution.addReward(time, me);
-		GreedyCalculations.reward(me, others, stations, time, value, timeStatistic);
+		Calculations.reward(me, others, stations, time, value, timeStatistic);
 	}
 
 	

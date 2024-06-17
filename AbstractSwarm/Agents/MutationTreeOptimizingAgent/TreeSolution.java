@@ -24,22 +24,7 @@ public class TreeSolution {
 			solutionPool.add(new ArrayList<>(trees));
 			
 			
-		}
-		
-		
+		}	
 	}
-	
-	
-	public TmpNode mutate(TmpNode node) {
-		
-		
-		return null;
-	}
-	
-	public TmpNode crossover(TmpNode node) {
-		
-		return null;
-	}
-	
 	
 }

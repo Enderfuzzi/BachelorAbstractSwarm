@@ -224,7 +224,7 @@ public class AbstractSwarmAgentInterface
 		if (timeStatistic.roundTimeUnit < time) timeStatistic.roundTimeUnit = time;
 		
 		
-		if (TEXT_OUTPUT) System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
+		 System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
 		
 		return result;
 	}

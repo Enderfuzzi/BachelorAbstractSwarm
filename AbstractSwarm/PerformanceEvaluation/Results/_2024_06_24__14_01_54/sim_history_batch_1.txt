@@ -1,0 +1,10 @@
+AgentRandom,CHANGEDManufacturingProcess.xml,100,20
+AgentRandom,CHANGEDSupermarket.xml,100,20
+AgentRandom,CHANGEDTreatments.xml,100,20
+AgentRandom,NEWElevator.xml,100,20
+AgentRandom,NEWPatientTransportation.xml,100,20
+AgentRandom,NEWStartingJobs.xml,100,20
+AgentRandom,NEWStorage2.xml,100,20
+AgentRandom,SCALEDPackaging.xml,100,20
+AgentRandom,SCALEDProductionLines.xml,100,20
+AgentRandom,SCALEDWardRound.xml,100,20

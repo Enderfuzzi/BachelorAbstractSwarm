@@ -24,10 +24,22 @@ public class Calculations {
 	
 
 	
-	public static RandomStatistic statistic = new RandomStatistic("path", "space", "distribution");
+	public static ProbabilityStatistic baseStatistic = new ProbabilityStatistic("path", "space", "distribution");
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
+	
+	private static List<Tree> currentTrees = new ArrayList<>();
+	private static int currentTreeIndex = 0;
+	private static List<Tree> bestTrees = new ArrayList<>();
+	
+	private static boolean generateTree = true;
+	
+	
+	private static ProbabilityStatistic mutationProbability = new ProbabilityStatistic();
+	
+	private static ProbabilityStatistic basicMutationProbability = new ProbabilityStatistic();
+
 	public static double evaluate(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station,
 			TimeStatistics timeStatistic) {
 
@@ -64,12 +76,17 @@ public class Calculations {
 		
 			
 			if (directedTimeEdges) {
-				statistic.add("directedTime");
+				baseStatistic.add("directedTime");
 			}
 			
 			if (undirectedTimeEdges) {
-				statistic.add("undirectedTime");
+				baseStatistic.add("undirectedTime");
 			}
+			
+			mutationProbability.add("mutation", 0.8);
+			basicMutationProbability.add("value");
+			basicMutationProbability.add("consumer");
+			basicMutationProbability.add("operator");
 			
 		}
 		
@@ -92,54 +109,119 @@ public class Calculations {
 		}
 		
 		
-		if (timeStatistic.newRun) {
-			if (TEXT_OUTPUT) System.out.println(statistic);
-			
-			statistic.newRandom();
-			statistic.reset();
-			
-			if (TEXT_OUTPUT) System.out.println(statistic.getAverage());
+		if (timeStatistic.newBestRun) {
+			bestTrees = new ArrayList<>(currentTrees);
 		}
+		
+		
+		if (timeStatistic.newRun) {
+			//System.out.println(currentTrees);
+			currentTrees.clear();
+			currentTreeIndex = 0;
+		}
+		
+		if (timeStatistic.lastValue != timeStatistic.time) {
+			currentTreeIndex++;	
+		}
+		
+		
 		
 		Tree evaluation = new Tree();
 		
-		if (statistic.compare("path")) {
-			evaluation.addNode(attributeNodes.get(Attribute.PATH_COST));
-		}
+		if (generateTree || currentTreeIndex >= bestTrees.size()) {
 		
-		if (statistic.compare("space")) {
-			evaluation.addNode(attributeNodes.get(Attribute.STATION_SPACE));
-		}
-		
-		if (statistic.compare("distribution")) {
+			if (timeStatistic.newRun) {
+				if (TEXT_OUTPUT) System.out.println(baseStatistic);
+				
+				baseStatistic.newRandom();
+				baseStatistic.reset();
+				
+				if (TEXT_OUTPUT) System.out.println(baseStatistic.getAverage());
+			}
+			
+			
+			
+			
+			if (baseStatistic.compare("path")) {
+				evaluation.addNode(attributeNodes.get(Attribute.PATH_COST));
+			}
+			
+			if (baseStatistic.compare("space")) {
+				evaluation.addNode(attributeNodes.get(Attribute.STATION_SPACE));
+			}
+			
+			if (baseStatistic.compare("distribution")) {
+	
+				if (stationFrequency) {
+					evaluation.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
+					
+				}
+				if (agentFrequency) {
+					evaluation.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
+					
+				}
+			}
+			
+			if (baseStatistic.compare("directedTime")) {
+				evaluation.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
+				evaluation.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
+			}
+			
+			if (baseStatistic.compare("undirectedTime")) {
+				evaluation.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+			}
+			
+			
+			if ((!stationFrequency && !agentFrequency || !baseStatistic.compare("distribution")) && !baseStatistic.compare("space") && !baseStatistic.compare("path") && 
+					!baseStatistic.compare("directedTime") && !baseStatistic.compare("undirectedTime")) {
+				evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
+			}
+		} else {
+			evaluation = bestTrees.get(currentTreeIndex).copy();
 
-			if (stationFrequency) {
-				evaluation.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
-				
+			//System.out.println(statistic);
+			if (timeStatistic.newRun) {
+				mutationProbability.newRandom();
+				basicMutationProbability.newRandom();
 			}
-			if (agentFrequency) {
-				evaluation.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
-				
+			
+			if (timeStatistic.lastValue != timeStatistic.time || currentTrees.size() < 1) {
+				if (mutationProbability.compare("mutation")) {
+					
+					if (basicMutationProbability.compare("value")) {
+						evaluation = TreeMutation.valueMutation(evaluation);
+					}
+					
+					if (basicMutationProbability.compare("operator")) {
+						evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
+					}
+					
+					if (basicMutationProbability.compare("consumer")) {
+						evaluation = TreeMutation.consumerWeightMutation(evaluation);
+					}
+					
+				}
+			} else {
+				evaluation = currentTrees.get(currentTrees.size() - 1);
 			}
-		}
-		
-		if (statistic.compare("directedTime")) {
-			evaluation.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
-			evaluation.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
-		}
-		
-		if (statistic.compare("undirectedTime")) {
-			evaluation.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+			
+			
+			
 		}
 		
 		
-		if ((!stationFrequency && !agentFrequency || !statistic.compare("distribution")) && !statistic.compare("space") && !statistic.compare("path") && 
-				!statistic.compare("directedTime") && !statistic.compare("undirectedTime")) {
-			evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
+		
+		if (timeStatistic.lastValue != timeStatistic.time) {
+			currentTrees.add(evaluation);
+		}
+		
+		if (timeStatistic.numberOfRuns >= 50) {
+			generateTree = false;
 		}
 		
 		firstRun = false;
-
+		
+		/*
 		System.out.println("---------------------------------");
 		System.out.println("Default: " + evaluation);
 		
@@ -149,7 +231,7 @@ public class Calculations {
 		
 		System.out.println("Default: " + evaluation);
 		System.out.println("----------------------------------");
-		
+		*/
 		return evaluation.evaluate(me, others, station);
 	}
 	
@@ -163,16 +245,20 @@ public class Calculations {
 			TimeStatistics timeStatistic
 			) {
 
-		
-		statistic.triggerCompare();
-		
-		statistic.normalize();
-		
-		
-		if (lastValue != time) {
-			lastValue = time;
+		if (generateTree || currentTreeIndex >= bestTrees.size()) {
+			baseStatistic.triggerCompare();
 			
-			statistic.newRandom();
+			baseStatistic.normalize();
+			
+			if (lastValue != time) {
+				lastValue = time;
+				
+				baseStatistic.newRandom();
+			}
+		} else {
+			mutationProbability.newRandom();
+			
+			basicMutationProbability.newRandom();
 		}
 	}
 	
@@ -475,21 +561,24 @@ enum Attribute {
 }
 
 
-class RandomStatistic {
+class ProbabilityStatistic {
 	
 	HashMap<String , Pair> map = new HashMap<>();
 	
 	HashMap<String, List<Double>> pastValues = new HashMap<>();
 	
-	public RandomStatistic(String...strings) {
+	public ProbabilityStatistic(String...strings) {
 		for (String name : strings) {
 			this.add(name);
 		}
 	}
 	
+	public void add(String name, double threshold) {
+		map.put(name, new Pair(threshold));
+	}
 	
 	public void add(String name) {
-		map.put(name, new Pair(0.35));
+		add(name, 0.35);
 	}
 	
 	public boolean compare(String name) {
@@ -590,12 +679,18 @@ class RandomStatistic {
 			newRandom();
 		}
 		
+		private void checkThreshold() {
+			this.threshold = Math.max(this.threshold, 0.05);
+		}
+		
 		public void setThreshold(double value) {
 			this.threshold = value;
+			checkThreshold();
 		}
 		
 		public void increaseThreshold(double value) {
 			this.threshold += value;
+			checkThreshold();
 		}
 		
 		public double getThreshold() {

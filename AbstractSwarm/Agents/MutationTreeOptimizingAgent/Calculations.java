@@ -19,12 +19,14 @@ public class Calculations {
 	private static boolean stationFrequency = false;
 	private static boolean agentFrequency = false;
 	
+	private static Random random = new Random();
+
+	public static ProbabilityStatistic baseProbability = new ProbabilityStatistic("path", "space", "distribution");
 	
 	private static MutationStatistic mutationStatistic = new MutationStatistic();
-	
 
 	
-	public static ProbabilityStatistic baseStatistic = new ProbabilityStatistic("path", "space", "distribution");
+
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
@@ -218,6 +220,11 @@ public class Calculations {
 		if (timeStatistic.numberOfRuns >= 50) {
 			generateTree = false;
 		}
+
+	
+		
+		
+		
 		
 		firstRun = false;
 		
@@ -259,7 +266,6 @@ public class Calculations {
 			mutationProbability.newRandom();
 			
 			basicMutationProbability.newRandom();
-		}
 	}
 	
 	

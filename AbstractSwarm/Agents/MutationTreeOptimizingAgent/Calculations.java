@@ -38,8 +38,16 @@ public class Calculations {
 	
 	private static boolean generateTree = true;
 	
+	private static List<Tree> crossoverTree = new ArrayList<>();
+	
+	
+	private static List<FitnessPair> treeFitness = new ArrayList<>();
+	
+	
 	
 	private static ProbabilityStatistic mutationProbability = new ProbabilityStatistic();
+	
+	private static boolean deactivateMutation = false;
 	
 	private static ProbabilityStatistic basicMutationProbability = new ProbabilityStatistic();
 
@@ -87,6 +95,9 @@ public class Calculations {
 			}
 			
 			mutationProbability.add("mutation", 0.8);
+			mutationProbability.add("crossover", 0.2);
+			mutationProbability.add("largeCrossover", 0.2);
+			
 			basicMutationProbability.add("value");
 			basicMutationProbability.add("consumer");
 			basicMutationProbability.add("operator");
@@ -111,6 +122,35 @@ public class Calculations {
 			return -100;
 		}
 		
+		double currentFitness = 0.0;
+		
+		if (timeStatistic.lastRunCompleted) {
+			if (timeStatistic.newBestRun) {
+				
+				for (FitnessPair pair : treeFitness) {
+					pair.fitness *= 0.9;
+				}
+			}
+			
+			currentFitness = timeStatistic.lowestTwT / timeStatistic.currentTwT;
+			
+			if (currentFitness > 0.0) {
+				treeFitness.add(new FitnessPair(currentFitness, currentTrees));
+				
+				if (treeFitness.size() > 20) {
+					
+					FitnessPair toRemove = null;
+					for (FitnessPair pair : treeFitness) {
+						if (toRemove == null || toRemove.fitness < pair.fitness) {
+							toRemove = pair;
+						}
+					}
+					
+					if (toRemove != null) treeFitness.remove(toRemove);
+				}
+			}
+			
+		}
 		
 		if (timeStatistic.newBestRun) {
 			bestTrees = new ArrayList<>(currentTrees);
@@ -122,6 +162,20 @@ public class Calculations {
 			currentTrees.clear();
 			currentTreeIndex = 0;
 		}
+		
+		if (timeStatistic.newRun && !generateTree) {
+			mutationProbability.newRandom();
+			if (mutationProbability.compare("largeCrossover")) {
+				deactivateMutation = true;
+				
+				crossoverTree = TreeMutation.largeCrossover(currentTrees, treeFitness.get(random.nextInt(treeFitness.size())).trees);
+				
+			} else {
+				deactivateMutation = false;
+			}
+		}
+		
+		
 		
 		if (timeStatistic.lastValue != timeStatistic.time) {
 			currentTreeIndex++;	
@@ -180,35 +234,56 @@ public class Calculations {
 				evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 			}
 		} else {
-			evaluation = bestTrees.get(currentTreeIndex).copy();
-
-			//System.out.println(statistic);
-			if (timeStatistic.newRun) {
-				mutationProbability.newRandom();
-				basicMutationProbability.newRandom();
-			}
 			
-			if (timeStatistic.lastValue != timeStatistic.time || currentTrees.size() < 1) {
-				if (mutationProbability.compare("mutation")) {
-					
-					if (basicMutationProbability.compare("value")) {
-						evaluation = TreeMutation.valueMutation(evaluation);
+			if (!deactivateMutation) {
+				evaluation = bestTrees.get(currentTreeIndex).copy();
+
+				if (timeStatistic.newRun) {
+					mutationProbability.newRandom();
+					basicMutationProbability.newRandom();
+				}
+				
+				if (timeStatistic.lastValue != timeStatistic.time || currentTrees.size() < 1) {
+					if (mutationProbability.compare("mutation")) {
+						
+						if (basicMutationProbability.compare("value")) {
+							evaluation = TreeMutation.valueMutation(evaluation);
+						}
+						
+						if (basicMutationProbability.compare("operator")) {
+							evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
+						}
+						
+						if (basicMutationProbability.compare("consumer")) {
+							evaluation = TreeMutation.consumerWeightMutation(evaluation);
+						}
+						
 					}
 					
-					if (basicMutationProbability.compare("operator")) {
-						evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
+					if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover")) {
+						
+						List<Tree> crossover = treeFitness.get(random.nextInt(treeFitness.size())).trees;
+						
+						if (crossover.size() > currentTreeIndex) {
+							evaluation = TreeMutation.crossover(evaluation, crossover.get(crossover.size() - 1));
+						} else {
+							evaluation = TreeMutation.crossover(evaluation, crossover.get(currentTreeIndex));
+						}
 					}
 					
-					if (basicMutationProbability.compare("consumer")) {
-						evaluation = TreeMutation.consumerWeightMutation(evaluation);
-					}
 					
+					
+				} else {
+					evaluation = currentTrees.get(currentTrees.size() - 1);
 				}
 			} else {
-				evaluation = currentTrees.get(currentTrees.size() - 1);
+				if (crossoverTree.size() < currentTreeIndex) {
+					evaluation = currentTrees.get(currentTrees.size() - 1);
+				} else {
+					evaluation = crossoverTree.get(currentTreeIndex).copy();
+					
+				}
 			}
-			
-			
 			
 		}
 		
@@ -218,7 +293,7 @@ public class Calculations {
 			currentTrees.add(evaluation);
 		}
 		
-		if (timeStatistic.numberOfRuns >= 50) {
+		if (timeStatistic.numberOfRuns >= 100) {
 			generateTree = false;
 		}
 
@@ -641,6 +716,12 @@ class ProbabilityStatistic {
 		return false;
 	}
 	
+	public void setThreshold(String name, double newThreshold) {
+		if (map.containsKey(name)) {
+			map.get(name).threshold = newThreshold;
+		}
+	}
+	
 	public void reset() {
 		addToPast();
 		Pair highest = null;
@@ -770,6 +851,20 @@ class ProbabilityStatistic {
 			sb.append(String.format("[RandomStatistic]: %s -> %s\n", entry.getKey(), entry.getValue().toString()));
 		}
 		return sb.toString();
+	}
+	
+}
+
+
+class FitnessPair {
+	
+	double fitness;
+	
+	List<Tree> trees;
+	
+	public FitnessPair(double fitness, List<Tree> trees) {
+		this.fitness = fitness;
+		this.trees = new ArrayList<>(trees);
 	}
 	
 }

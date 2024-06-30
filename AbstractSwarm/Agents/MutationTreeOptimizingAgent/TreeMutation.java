@@ -131,4 +131,27 @@ public class TreeMutation {
 		
 	}
 	
+	
+	public static List<Tree> largeCrossover(List<Tree> first, List<Tree> second) {
+		if (first.size() == 0) {
+			return second;
+		}
+		
+		if (second.size() == 0) {
+			return first;
+		}
+		
+		int randomIndex = random.nextInt(Math.min(first.size(), second.size()));
+		
+		List<Tree> firstCopy = new ArrayList<>(first);
+		List<Tree> secondCopy = new ArrayList<>(second);
+		
+		firstCopy.subList(randomIndex, firstCopy.size()).clear();
+		secondCopy.subList(0, randomIndex).clear();
+		firstCopy.addAll(secondCopy);
+		
+		return firstCopy;
+	}
+	
+	
 }

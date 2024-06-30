@@ -78,11 +78,11 @@ public class Calculations {
 		
 			
 			if (directedTimeEdges) {
-				baseStatistic.add("directedTime");
+				baseProbability.add("directedTime");
 			}
 			
 			if (undirectedTimeEdges) {
-				baseStatistic.add("undirectedTime");
+				baseProbability.add("undirectedTime");
 			}
 			
 			mutationProbability.add("mutation", 0.8);
@@ -133,26 +133,26 @@ public class Calculations {
 		if (generateTree || currentTreeIndex >= bestTrees.size()) {
 		
 			if (timeStatistic.newRun) {
-				if (TEXT_OUTPUT) System.out.println(baseStatistic);
+				if (TEXT_OUTPUT) System.out.println(baseProbability);
 				
-				baseStatistic.newRandom();
-				baseStatistic.reset();
+				baseProbability.newRandom();
+				baseProbability.reset();
 				
-				if (TEXT_OUTPUT) System.out.println(baseStatistic.getAverage());
+				if (TEXT_OUTPUT) System.out.println(baseProbability.getAverage());
 			}
 			
 			
 			
 			
-			if (baseStatistic.compare("path")) {
+			if (baseProbability.compare("path")) {
 				evaluation.addNode(attributeNodes.get(Attribute.PATH_COST));
 			}
 			
-			if (baseStatistic.compare("space")) {
+			if (baseProbability.compare("space")) {
 				evaluation.addNode(attributeNodes.get(Attribute.STATION_SPACE));
 			}
 			
-			if (baseStatistic.compare("distribution")) {
+			if (baseProbability.compare("distribution")) {
 	
 				if (stationFrequency) {
 					evaluation.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
@@ -164,18 +164,18 @@ public class Calculations {
 				}
 			}
 			
-			if (baseStatistic.compare("directedTime")) {
+			if (baseProbability.compare("directedTime")) {
 				evaluation.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
 				evaluation.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
 			}
 			
-			if (baseStatistic.compare("undirectedTime")) {
+			if (baseProbability.compare("undirectedTime")) {
 				evaluation.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
 			}
 			
 			
-			if ((!stationFrequency && !agentFrequency || !baseStatistic.compare("distribution")) && !baseStatistic.compare("space") && !baseStatistic.compare("path") && 
-					!baseStatistic.compare("directedTime") && !baseStatistic.compare("undirectedTime")) {
+			if ((!stationFrequency && !agentFrequency || !baseProbability.compare("distribution")) && !baseProbability.compare("space") && !baseProbability.compare("path") && 
+					!baseProbability.compare("directedTime") && !baseProbability.compare("undirectedTime")) {
 				evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 			}
 		} else {
@@ -253,19 +253,20 @@ public class Calculations {
 			) {
 
 		if (generateTree || currentTreeIndex >= bestTrees.size()) {
-			baseStatistic.triggerCompare();
+			baseProbability.triggerCompare();
 			
-			baseStatistic.normalize();
+			baseProbability.normalize();
 			
 			if (lastValue != time) {
 				lastValue = time;
 				
-				baseStatistic.newRandom();
+				baseProbability.newRandom();
 			}
 		} else {
 			mutationProbability.newRandom();
 			
 			basicMutationProbability.newRandom();
+		}
 	}
 	
 	

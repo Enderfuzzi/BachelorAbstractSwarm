@@ -62,27 +62,59 @@ public class Calculations {
 			stationFrequency = graphHasStationFrequency(stations);
 			agentFrequency = graphHasAgentFrequency(me, others);
 			
-			attributeNodes.put(Attribute.STATION_FREQUENCY, new ConsumerNode((OwnConsumer) Calculations::stationFrequency, Attribute.STATION_FREQUENCY.name()));
+			attributeNodes.put(Attribute.STATION_FREQUENCY, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(1.0),  
+							new ConsumerNode((OwnConsumer) Calculations::stationFrequency, Attribute.STATION_FREQUENCY.name())));
 			
 			
-			attributeNodes.put(Attribute.AGENT_FREQUENCY, new ConsumerNode((OwnConsumer) Calculations::computeAgentFrequency, Attribute.AGENT_FREQUENCY.name()));
+			attributeNodes.put(Attribute.AGENT_FREQUENCY, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(1.0), 
+							new ConsumerNode((OwnConsumer) Calculations::computeAgentFrequency, Attribute.AGENT_FREQUENCY.name())));
 			
-			attributeNodes.put(Attribute.MAX_DISTRIBUTION, new ConsumerNode((OwnConsumer) Calculations::maxDistribution, Attribute.MAX_DISTRIBUTION.name()));
+			attributeNodes.put(Attribute.MAX_DISTRIBUTION, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(1.0),
+							new ConsumerNode((OwnConsumer) Calculations::maxDistribution, Attribute.MAX_DISTRIBUTION.name())));
 			
 			if (directedTimeEdges) {
-				attributeNodes.put(Attribute.INCOMING_TIME_CONNECTION, new ConsumerNode((OwnConsumer) Calculations::computeIncomingConnectedStations, Attribute.INCOMING_TIME_CONNECTION.name()));
-				attributeNodes.put(Attribute.OUTGOING_TIME_CONNECTION, new ConsumerNode((OwnConsumer) Calculations::computeOutgoingConnectedStations, Attribute.OUTGOING_TIME_CONNECTION.name()));
+				attributeNodes.put(Attribute.INCOMING_TIME_CONNECTION, 
+						new OperatorNode(Operator.MULTIPLICATION, 
+								new ValueNode(1.0), 
+								new ConsumerNode((OwnConsumer) Calculations::computeIncomingConnectedStations, Attribute.INCOMING_TIME_CONNECTION.name())));
+				
+				attributeNodes.put(Attribute.OUTGOING_TIME_CONNECTION, 
+						new OperatorNode(Operator.MULTIPLICATION, 
+								new ValueNode(1.0), 
+								new ConsumerNode((OwnConsumer) Calculations::computeOutgoingConnectedStations, Attribute.OUTGOING_TIME_CONNECTION.name())));
 			}
+			
 			if (undirectedTimeEdges) {
-				attributeNodes.put(Attribute.UNDIRECTED_TIME_CONNECTION, new ConsumerNode((OwnConsumer) Calculations::computeUndirectedTimeConnectedStations, Attribute.UNDIRECTED_TIME_CONNECTION.name()));
+				attributeNodes.put(Attribute.UNDIRECTED_TIME_CONNECTION, 
+						new OperatorNode(Operator.MULTIPLICATION,
+									new ValueNode(1.0), 
+									new ConsumerNode((OwnConsumer) Calculations::computeUndirectedTimeConnectedStations, Attribute.UNDIRECTED_TIME_CONNECTION.name())));
 			}
-			attributeNodes.put(Attribute.PATH_COST, new OperatorNode(Operator.MULTIPLICATION, new ValueNode(-1.0), new ConsumerNode((OwnConsumer) Calculations::pathCost, Attribute.PATH_COST.name())));
 			
-			attributeNodes.put(Attribute.STATION_SPACE, new OperatorNode(Operator.DIVISION, new ConsumerNode((OwnConsumer) Calculations::stationSpace, "Station Size"), 
-					new ConsumerNode((OwnConsumer) Calculations::agentSize, "Agent Size")));
+			attributeNodes.put(Attribute.PATH_COST, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(-1.0), 
+							new ConsumerNode((OwnConsumer) Calculations::pathCost, Attribute.PATH_COST.name())));
 			
-			attributeNodes.put(Attribute.AGENT_TIME, new OperatorNode(Operator.DIVISION, new ConsumerNode((OwnConsumer) Calculations::totalAgentTime, "Total Agent Time"), 
-					new ConsumerNode((OwnConsumer) Calculations::estimatedWorkTimeLeft, "Work Time Left")));
+			attributeNodes.put(Attribute.STATION_SPACE, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(1.0), 
+							new OperatorNode(Operator.DIVISION, 
+									new ConsumerNode((OwnConsumer) Calculations::stationSpace, "Station Size"), 
+									new ConsumerNode((OwnConsumer) Calculations::agentSize, "Agent Size"))));
+			
+			attributeNodes.put(Attribute.AGENT_TIME, 
+					new OperatorNode(Operator.MULTIPLICATION, 
+							new ValueNode(1.0), 
+							new OperatorNode(Operator.DIVISION, 
+									new ConsumerNode((OwnConsumer) Calculations::totalAgentTime, "Total Agent Time"), 
+									new ConsumerNode((OwnConsumer) Calculations::estimatedWorkTimeLeft, "Work Time Left"))));
 			
 		
 			
@@ -98,9 +130,8 @@ public class Calculations {
 			mutationProbability.add("crossover", 0.2);
 			mutationProbability.add("largeCrossover", 0.2);
 			
-			basicMutationProbability.add("value");
-			basicMutationProbability.add("consumer");
-			basicMutationProbability.add("operator");
+			basicMutationProbability.add("value", 0.5);
+			basicMutationProbability.add("operator", 0.5);
 			
 		}
 		
@@ -252,11 +283,7 @@ public class Calculations {
 							if (basicMutationProbability.compare("operator")) {
 								evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
 							}
-							
-							if (basicMutationProbability.compare("consumer")) {
-								evaluation = TreeMutation.consumerWeightMutation(evaluation);
-							}
-							
+													
 						}
 						
 						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover")) {
@@ -289,10 +316,8 @@ public class Calculations {
 		
 		if (currentTrees.size() > 0) {
 			evaluation = currentTrees.get(currentTrees.size() - 1);
-		} else {
-			System.out.println("Tree is empty");
-		}
-			
+		} 
+		
 		if (timeStatistic.numberOfRuns >= 100) {
 			generateTree = false;
 		}

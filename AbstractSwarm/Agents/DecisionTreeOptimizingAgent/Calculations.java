@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.function.Predicate;
 
 
 public class Calculations {
@@ -23,7 +24,7 @@ public class Calculations {
 	private static Node activeNode;
 	private static double activeValue;
 	
-	public static RandomStatistic statistic = new RandomStatistic("path", "space", "distribution");
+	public static ProbabilityStatistic statistic = new ProbabilityStatistic("path", "space", "distribution");
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
@@ -53,7 +54,7 @@ public class Calculations {
 				attributeNodes.put(Attribute.UNDIRECTED_TIME_CONNECTION, new Node((OwnConsumer) Calculations::computeUndirectedTimeConnectedStations));
 			}
 			attributeNodes.put(Attribute.PATH_COST, new Node(Operator.MULTIPLICATION, -1.0, new Node((OwnConsumer) Calculations::pathCost)));
-			attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) Calculations::stationSize), new Node((OwnConsumer) Calculations::agentSize)));
+			attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) Calculations::stationSpace), new Node((OwnConsumer) Calculations::agentSize)));
 			attributeNodes.put(Attribute.AGENT_TIME, new Node(Operator.DIVISION, new Node((OwnConsumer) Calculations::totalAgentTime), new Node((OwnConsumer) Calculations::estimatedWorkTimeLeft)));
 			
 		
@@ -78,7 +79,7 @@ public class Calculations {
 			return -100;
 		}
 		// agent to large
-		if (agentSize(me, others, station) > stationSize(me, others, station)) {
+		if (agentSize(me, others, station) > stationSpace(me, others, station)) {
 			return -100;
 		}
 		//station is not reachable
@@ -169,7 +170,7 @@ public class Calculations {
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
 		
 		double result = 0.0;
-		if (me.type.size * me.type.components.size() <= stationSize(me, others, station)) {
+		if (me.type.size * me.type.components.size() <= stationSpace(me, others, station)) {
 			result += 1.0;
 		}
 		
@@ -178,7 +179,7 @@ public class Calculations {
 			StationType stationType = (StationType) edge.connectedType;
 			if (used.contains(stationType)) continue;
 			used.add(stationType);
-			if (me.type.size * me.type.components.size() > stationSize(stationType)) {
+			if (me.type.size * me.type.components.size() > stationSpace(stationType)) {
 				result -= 0.5;
 			}
 			
@@ -189,7 +190,7 @@ public class Calculations {
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
-			if (agent.type.size * agent.type.components.size() > stationSize(me, others, station)) {
+			if (agent.type.size * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
@@ -233,19 +234,37 @@ public class Calculations {
 				result -= 2.0;
 			}
 		}
-		return result + 2.0 * stationSize(me, others, station);
+		return result + 2.0 * stationSpace(me, others, station);
 	}
 	
-	private static int stationSize(Agent me, HashMap<Agent, Object> others, Station station) {
-		if (station.type.space == -1) return 1;
-		return station.type.space;
-	}
-	
-	private static int stationSize(StationType station) {
+	/**
+	 * Extracts the initial space of a station type. Returns 1 if the station type has no space attribute.
+	 * @param station The station type to check.
+	 * @return The space of a station or 1 if the station has no space attribute
+	 */
+	private static int stationSpace(StationType station) {
 		if (station.space == -1) return 1;
 		return station.space;
 	}
 	
+	/**
+	 * Similar to {@link Calculations#stationSpace(StationType)} with unused parameters for {@link OwnConsumer}
+	 * @param me unused parameter
+	 * @param others unused parameter
+	 * @param The station to check
+	 * @return The space of a station or 1 if the station has no space attribute
+	 */
+	private static int stationSpace(Agent me, HashMap<Agent, Object> others, Station station) {
+		return stationSpace(station.type);
+	}
+	
+	/**
+	 * Extracts the size of the given agent. Returns 1 if the agent has no size attribute. Has unused parameters to make it usable with the OwnConsumer interface. 
+	 * @param me The agent to check
+	 * @param others unused parameter
+	 * @param station unused parameter
+	 * @return the extracted size of an agent.
+	 */
 	private static int agentSize(Agent me,  HashMap<Agent, Object> others, Station station) {
 		if (me.type.size == -1) return 1;
 		return me.type.size;
@@ -264,6 +283,13 @@ public class Calculations {
 		return counter;
 	}
 	
+	/**
+	 * Checks that an agent can reach all other stations it needs to visit.
+	 * Note: if the agent has no necessity attribute then the agent does not net visit a particular station.
+	 * @param me The agent to check
+	 * @param station The station to begin the check
+	 * @return false if a station is not reachable from the given station.
+	 */
 	private static boolean otherStationsReachable(Agent me, Station station) {
 		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
 			if (entry.getValue() <= 0) continue;
@@ -272,10 +298,11 @@ public class Calculations {
 		return true;
 	}
 	
-	private static double computeOutgoingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
+	record ResultPair(Station station, int cost) {};
+	
+	private static double computeTimeConnections(Agent me, HashMap<Agent, Object> others, List<ResultPair> connectedStations) {
 		double result = 0.0;
-		List<ResultPair> outgoingTimeConnectedStations = getOutgoingTimeConnectedStations(station);
-		for (ResultPair pair : outgoingTimeConnectedStations) {
+		for (ResultPair pair : connectedStations) {
 			result += timeAtStation(me, others, pair.station);
 			result += pair.cost;
 			result += stationTargeted(me, others, pair.station);
@@ -283,15 +310,13 @@ public class Calculations {
 		return result;
 	}
 	
+	
+	private static double computeOutgoingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
+		return computeTimeConnections(me, others, getOutgoingTimeConnectedStations(station));
+	}
+	
 	private static double computeIncomingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
-		double result = 0.0;
-		List<ResultPair> incomingTimeConnectedStations = getIncomingTimeConnectedStations(station);
-		for (ResultPair pair : incomingTimeConnectedStations) {
-			result += timeAtStation(me, others, pair.station);
-			result += pair.cost;
-			result += stationTargeted(me, others, pair.station);
-		}
-		return result;
+		return computeTimeConnections(me, others, getIncomingTimeConnectedStations(station));
 	}
 	
 	private static double computeUndirectedTimeConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -304,12 +329,10 @@ public class Calculations {
 		return result;
 	}
 	
-	record ResultPair(Station station, int cost) {};
-	
-	private static List<ResultPair> getOutgoingTimeConnectedStations(Station station) {
+	private static List<ResultPair> getTimeConnectedStations(Station station, Predicate<TimeEdge> pred) {
 		List<ResultPair> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
-			if (!edge.outgoing || edge.incoming) continue;
+			if (pred.test(edge)) continue;
 			if (edge.connectedType instanceof StationType stationType) {
 				for (Station s : stationType.components) {
 					result.add(new ResultPair(s, edge.weight));
@@ -319,17 +342,13 @@ public class Calculations {
 		return result;
 	}
 	
+	
+	private static List<ResultPair> getOutgoingTimeConnectedStations(Station station) {
+		return getTimeConnectedStations(station, edge -> (!edge.outgoing || edge.incoming));
+	}
+	
 	private static List<ResultPair> getIncomingTimeConnectedStations(Station station) {
-		List<ResultPair> result = new ArrayList<>();
-		for (TimeEdge edge : station.type.timeEdges) {
-			if (edge.outgoing || !edge.incoming) continue;
-			if (edge.connectedType instanceof StationType stationType) {
-				for (Station s : stationType.components) {
-					result.add(new ResultPair(s, edge.weight));
-				}
-			}
-		}
-		return result;
+		return getTimeConnectedStations(station, edge -> (edge.outgoing || !edge.incoming));
 	}
 	
 	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
@@ -404,28 +423,50 @@ public class Calculations {
 	
 	
 	
+	/**
+	 * Checks if the graph has any time edge matching the predicate.
+	 * Note: Connections between two agents are not considered here.
+	 * @param stations The stations to check
+	 * @param pred The predicate which has to be fulfilled for the edge
+	 * @return true if the graph has a matching time edge
+	 */
+	private static boolean graphHasTimeEdge(List<Station> stations, Predicate<TimeEdge> pred) {
+		for (Station station : stations) {
+			if (station.type.timeEdges.size() > 0) {
+				for (TimeEdge edge : station.type.timeEdges) {
+					if (pred.test(edge)) return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks if the graph has any directed time edges.
+	 * Uses: {@link Calculations#graphHasTimeEdge(List, Predicate)}
+	 * @param stations the stations to check
+	 * @return true if the graph has at least one directed time edge
+	 */
 	private static boolean graphHasDirectedTimeEdges(List<Station> stations) {
-		for (Station station : stations) {
-			if (station.type.timeEdges.size() > 0) {
-				for (TimeEdge edge : station.type.timeEdges) {
-					if (edge.incoming || edge.outgoing) return true;
-				}
-			}
-		}
-		return false;
+
+		return graphHasTimeEdge(stations, edge -> (edge.incoming || edge.outgoing));
 	}
 	
+	/**
+	 * Checks if the graph has any undirected time edges.
+	 * Uses: {@link Calculations#graphHasTimeEdge(List, Predicate)}
+	 * @param stations the stations to check
+	 * @return true if the graph has at least one undirected time edge
+	 */
 	private static boolean graphHasUndirectedTimeEdges(List<Station> stations) {
-		for (Station station : stations) {
-			if (station.type.timeEdges.size() > 0) {
-				for (TimeEdge edge : station.type.timeEdges) {
-					if (!edge.incoming && !edge.outgoing) return true;
-				}
-			}
-		}
-		return false;
+		return graphHasTimeEdge(stations, edge -> (!edge.incoming && !edge.outgoing));
 	}
 	
+	/**
+	 * Checks if the graph has any stations with frequency attribute.
+	 * @param stations The stations to check
+	 * @return true if the graph has at least one station with frequency attribute
+	 */
 	private static boolean graphHasStationFrequency(List<Station> stations) {
 		for (Station station : stations) {
 			if (station.frequency != -1) return true;
@@ -433,6 +474,12 @@ public class Calculations {
 		return false;
 	}
 	
+	/**
+	 * Checks if the graph has any agents with frequency attribute.
+	 * @param me The current agent
+	 * @param others The other agents to check
+	 * @return true if the graph has at least one agent with frequency attribute
+	 */
 	private static boolean graphHasAgentFrequency(Agent me, HashMap<Agent, Object> others) {
 		if (me.frequency != -1) return true;
 		for (Agent agent : others.keySet()) {
@@ -650,13 +697,13 @@ class Node {
 	
 }
 
-class RandomStatistic {
+class ProbabilityStatistic {
 	
 	HashMap<String , Pair> map = new HashMap<>();
 	
 	HashMap<String, List<Double>> pastValues = new HashMap<>();
 	
-	public RandomStatistic(String...strings) {
+	public ProbabilityStatistic(String...strings) {
 		for (String name : strings) {
 			this.add(name);
 		}

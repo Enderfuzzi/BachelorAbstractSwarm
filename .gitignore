@@ -2,3 +2,6 @@
 **/Agents/**/.metadata
 **/Agents/**/.idea
 **/Agents/**/*.class
+**/Agents/**/.classpath
+**/Agents/**/.project
+**/Agents/**/AbstractSwarmAgentInterfaceServer.java

@@ -1,0 +1,75 @@
+
+simulations: 10
+graph: CHANGEDManufacturingProcess.xml,twt: 171.0,runs: 1,reps: 1
+graph: CHANGEDSupermarket.xml,twt: 2015.0,runs: 1,reps: 1
+graph: CHANGEDTreatments.xml,twt: 1763.0,runs: 1,reps: 1
+graph: NEWElevator.xml,twt: 112.0,runs: 1,reps: 1
+graph: NEWPatientTransportation.xml,twt: 900.0,runs: 1,reps: 1
+graph: NEWStartingJobs.xml,twt: 2310.0,runs: 1,reps: 1
+graph: NEWStorage2.xml,twt: 447.0,runs: 1,reps: 1
+graph: SCALEDPackaging.xml,twt: 82.0,runs: 1,reps: 1
+graph: SCALEDProductionLines.xml,twt: 7280.0,runs: 1,reps: 1
+graph: SCALEDWardRound.xml,twt: 294.0,runs: 1,reps: 1
+
+-----------------------------------------
+
+current log entry:	1
+current value:		123.0
+current normalized:	0.7192982456140351
+sim_order_idx:		0
+curr twt:			171.0
+-------------------
+current log entry:	2
+current value:		1715.0
+current normalized:	0.8511166253101737
+sim_order_idx:		1
+curr twt:			2015.0
+-------------------
+current log entry:	3
+current value:		420.0
+current normalized:	0.23818525519848777
+sim_order_idx:		2
+curr twt:			1763.333333333333
+-------------------
+current log entry:	4
+current value:		-1.0
+current normalized:	1.0
+sim_order_idx:		3
+curr twt:			112.0
+-------------------
+current log entry:	5
+current value:		141.0
+current normalized:	0.15666666666666668
+sim_order_idx:		4
+curr twt:			900.0
+-------------------
+current log entry:	6
+current value:		308.0
+current normalized:	0.13333333333333333
+sim_order_idx:		5
+curr twt:			2310.0
+-------------------
+current log entry:	7
+current value:		160.0
+current normalized:	0.35820895522388124
+sim_order_idx:		6
+curr twt:			446.6666666666659
+-------------------
+current log entry:	8
+current value:		80.0
+current normalized:	0.9756097560975623
+sim_order_idx:		7
+curr twt:			81.99999999999989
+-------------------
+current log entry:	9
+current value:		1908.0
+current normalized:	0.2620879120879121
+sim_order_idx:		8
+curr twt:			7280.0
+-------------------
+current log entry:	10
+current value:		86.0
+current normalized:	0.2925170068027211
+sim_order_idx:		9
+curr twt:			294.0
+-------------------

@@ -1,0 +1,10 @@
+DecisionTreeOptimizingAgent,CHANGEDStorage.xml,100,20
+DecisionTreeOptimizingAgent,CHANGEDWardRound.xml,100,20
+DecisionTreeOptimizingAgent,CHANGEDXRayScheduling2.xml,100,20
+DecisionTreeOptimizingAgent,NEWManufacturingProcess.xml,100,20
+DecisionTreeOptimizingAgent,NEWPackaging.xml,100,20
+DecisionTreeOptimizingAgent,NEWProductionLines.xml,100,20
+DecisionTreeOptimizingAgent,NEWSupermarket.xml,100,20
+DecisionTreeOptimizingAgent,SCALEDCrossroads.xml,100,20
+DecisionTreeOptimizingAgent,SCALEDDelivery.xml,100,20
+DecisionTreeOptimizingAgent,SCALEDXRayScheduling.xml,100,20

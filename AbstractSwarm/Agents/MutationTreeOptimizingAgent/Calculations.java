@@ -124,7 +124,7 @@ public class Calculations {
 		
 		double currentFitness = 0.0;
 		
-		if (timeStatistic.lastRunCompleted) {
+		if (timeStatistic.newRun && timeStatistic.lastRunCompleted) {
 			if (timeStatistic.newBestRun) {
 				
 				for (FitnessPair pair : treeFitness) {
@@ -132,7 +132,11 @@ public class Calculations {
 				}
 			}
 			
-			currentFitness = timeStatistic.lowestTwT / timeStatistic.currentTwT;
+			if (timeStatistic.currentTwT == 0L) {
+				currentFitness = 1.0;
+			} else {
+				currentFitness = timeStatistic.lowestTwT / timeStatistic.currentTwT;
+			}
 			
 			if (currentFitness > 0.0) {
 				treeFitness.add(new FitnessPair(currentFitness, currentTrees));
@@ -141,7 +145,7 @@ public class Calculations {
 					
 					FitnessPair toRemove = null;
 					for (FitnessPair pair : treeFitness) {
-						if (toRemove == null || toRemove.fitness < pair.fitness) {
+						if (toRemove == null || toRemove.fitness > pair.fitness) {
 							toRemove = pair;
 						}
 					}
@@ -175,146 +179,126 @@ public class Calculations {
 			}
 		}
 		
-		
+		Tree evaluation = new Tree();
 		
 		if (timeStatistic.lastValue != timeStatistic.time) {
 			currentTreeIndex++;	
-		}
-		
-		
-		
-		Tree evaluation = new Tree();
-		
-		if (generateTree || currentTreeIndex >= bestTrees.size()) {
-		
-			if (timeStatistic.newRun) {
-				if (TEXT_OUTPUT) System.out.println(baseProbability);
-				
-				baseProbability.newRandom();
-				baseProbability.reset();
-				
-				if (TEXT_OUTPUT) System.out.println(baseProbability.getAverage());
-			}
 			
+			if (generateTree || currentTreeIndex >= bestTrees.size()) {
 			
-			
-			
-			if (baseProbability.compare("path")) {
-				evaluation.addNode(attributeNodes.get(Attribute.PATH_COST));
-			}
-			
-			if (baseProbability.compare("space")) {
-				evaluation.addNode(attributeNodes.get(Attribute.STATION_SPACE));
-			}
-			
-			if (baseProbability.compare("distribution")) {
-	
-				if (stationFrequency) {
-					evaluation.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
-					
-				}
-				if (agentFrequency) {
-					evaluation.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
-					
-				}
-			}
-			
-			if (baseProbability.compare("directedTime")) {
-				evaluation.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
-				evaluation.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
-			}
-			
-			if (baseProbability.compare("undirectedTime")) {
-				evaluation.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
-			}
-			
-			
-			if ((!stationFrequency && !agentFrequency || !baseProbability.compare("distribution")) && !baseProbability.compare("space") && !baseProbability.compare("path") && 
-					!baseProbability.compare("directedTime") && !baseProbability.compare("undirectedTime")) {
-				evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
-			}
-		} else {
-			
-			if (!deactivateMutation) {
-				evaluation = bestTrees.get(currentTreeIndex).copy();
-
 				if (timeStatistic.newRun) {
-					mutationProbability.newRandom();
-					basicMutationProbability.newRandom();
+					if (TEXT_OUTPUT) System.out.println(baseProbability);
+					
+					baseProbability.newRandom();
+					baseProbability.reset();
+					
+					if (TEXT_OUTPUT) System.out.println(baseProbability.getAverage());
 				}
 				
-				if (timeStatistic.lastValue != timeStatistic.time || currentTrees.size() < 1) {
-					if (mutationProbability.compare("mutation")) {
-						
-						if (basicMutationProbability.compare("value")) {
-							evaluation = TreeMutation.valueMutation(evaluation);
-						}
-						
-						if (basicMutationProbability.compare("operator")) {
-							evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
-						}
-						
-						if (basicMutationProbability.compare("consumer")) {
-							evaluation = TreeMutation.consumerWeightMutation(evaluation);
-						}
+				
+				
+				
+				if (baseProbability.compare("path")) {
+					evaluation.addNode(attributeNodes.get(Attribute.PATH_COST));
+				}
+				
+				if (baseProbability.compare("space")) {
+					evaluation.addNode(attributeNodes.get(Attribute.STATION_SPACE));
+				}
+				
+				if (baseProbability.compare("distribution")) {
+		
+					if (stationFrequency) {
+						evaluation.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
 						
 					}
-					
-					if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover")) {
+					if (agentFrequency) {
+						evaluation.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
 						
-						List<Tree> crossover = treeFitness.get(random.nextInt(treeFitness.size())).trees;
-						
-						if (crossover.size() > currentTreeIndex) {
-							evaluation = TreeMutation.crossover(evaluation, crossover.get(crossover.size() - 1));
-						} else {
-							evaluation = TreeMutation.crossover(evaluation, crossover.get(currentTreeIndex));
-						}
 					}
-					
-					
-					
-				} else {
-					evaluation = currentTrees.get(currentTrees.size() - 1);
+				}
+				
+				if (baseProbability.compare("directedTime")) {
+					evaluation.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
+					evaluation.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
+				}
+				
+				if (baseProbability.compare("undirectedTime")) {
+					evaluation.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
+				}
+				
+				
+				if ((!stationFrequency && !agentFrequency || !baseProbability.compare("distribution")) && !baseProbability.compare("space") && !baseProbability.compare("path") && 
+						!baseProbability.compare("directedTime") && !baseProbability.compare("undirectedTime")) {
+					evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 				}
 			} else {
-				if (crossoverTree.size() < currentTreeIndex) {
-					evaluation = currentTrees.get(currentTrees.size() - 1);
-				} else {
-					evaluation = crossoverTree.get(currentTreeIndex).copy();
+				
+				if (!deactivateMutation) {
+					evaluation = bestTrees.get(currentTreeIndex).copy();
+	
+					if (timeStatistic.newRun) {
+						mutationProbability.newRandom();
+						basicMutationProbability.newRandom();
+					}
 					
+					if (timeStatistic.lastValue != timeStatistic.time || currentTrees.size() < 1) {
+						if (mutationProbability.compare("mutation")) {
+							
+							if (basicMutationProbability.compare("value")) {
+								evaluation = TreeMutation.valueMutation(evaluation);
+							}
+							
+							if (basicMutationProbability.compare("operator")) {
+								evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
+							}
+							
+							if (basicMutationProbability.compare("consumer")) {
+								evaluation = TreeMutation.consumerWeightMutation(evaluation);
+							}
+							
+						}
+						
+						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover")) {
+							
+							List<Tree> crossover = treeFitness.get(random.nextInt(treeFitness.size())).trees;
+							
+							if (crossover.size() > currentTreeIndex) {
+								evaluation = TreeMutation.crossover(evaluation, crossover.get(currentTreeIndex));
+							} else {
+								evaluation = TreeMutation.crossover(evaluation, crossover.get(crossover.size() - 1));
+							}
+						}
+						
+						
+						
+					} else {
+						evaluation = currentTrees.get(currentTrees.size() - 1);
+					}
+				} else {
+					if (crossoverTree.size() > currentTreeIndex) {
+						evaluation = crossoverTree.get(currentTreeIndex).copy();
+					}
 				}
+				
 			}
 			
-		}
-		
-		
-		
-		if (timeStatistic.lastValue != timeStatistic.time) {
+			
 			currentTrees.add(evaluation);
 		}
 		
+		if (currentTrees.size() > 0) {
+			evaluation = currentTrees.get(currentTrees.size() - 1);
+		} else {
+			System.out.println("Tree is empty");
+		}
+			
 		if (timeStatistic.numberOfRuns >= 100) {
 			generateTree = false;
 		}
-
-	
-		
-		
-		
 		
 		firstRun = false;
 		
-		/*
-		System.out.println("---------------------------------");
-		System.out.println("Default: " + evaluation);
-		
-		System.out.println("Weight Mutation: " + TreeMutation.consumerWeightMutation(evaluation));
-		System.out.println("Operator Mutation: " + TreeMutation.mutateOperator(mutationStatistic, evaluation));
-		System.out.println("Value Mutation: " + TreeMutation.valueMutation(evaluation));
-		
-		System.out.println("Default: " + evaluation);
-		System.out.println("----------------------------------");
-		*/
 		return evaluation.evaluate(me, others, station);
 	}
 	
@@ -865,6 +849,10 @@ class FitnessPair {
 	public FitnessPair(double fitness, List<Tree> trees) {
 		this.fitness = fitness;
 		this.trees = new ArrayList<>(trees);
+	}
+	
+	public String toString() {
+		return String.format("[Fitness=%f,Trees=%s]", fitness, trees.toString());
 	}
 	
 }

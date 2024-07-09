@@ -300,7 +300,7 @@ public class Calculations {
 	
 	record ResultPair(Station station, int cost) {};
 	
-	private static double computeTimeConnections(Agent me, HashMap<Agent, Object> others, List<ResultPair> connectedStations) {
+	private static double computeTimeConnectedStations(Agent me, HashMap<Agent, Object> others, List<ResultPair> connectedStations) {
 		double result = 0.0;
 		for (ResultPair pair : connectedStations) {
 			result += timeAtStation(me, others, pair.station);
@@ -310,29 +310,11 @@ public class Calculations {
 		return result;
 	}
 	
-	
-	private static double computeOutgoingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
-		return computeTimeConnections(me, others, getOutgoingTimeConnectedStations(station));
-	}
-	
-	private static double computeIncomingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
-		return computeTimeConnections(me, others, getIncomingTimeConnectedStations(station));
-	}
-	
-	private static double computeUndirectedTimeConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
-		double result = 0.0;
-		List<Station> undirectedStations = getUndirectedTimeConnectedStations(station); 
-		for (Station s: undirectedStations) {
-			result += timeAtStation(me, others, s);
-			result += stationTargeted(me, others, s);
-		}
-		return result;
-	}
-	
 	private static List<ResultPair> getTimeConnectedStations(Station station, Predicate<TimeEdge> pred) {
 		List<ResultPair> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
 			if (pred.test(edge)) continue;
+			if (TEXT_OUTPUT) System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
 			if (edge.connectedType instanceof StationType stationType) {
 				for (Station s : stationType.components) {
 					result.add(new ResultPair(s, edge.weight));
@@ -342,27 +324,61 @@ public class Calculations {
 		return result;
 	}
 	
-	
-	private static List<ResultPair> getOutgoingTimeConnectedStations(Station station) {
-		return getTimeConnectedStations(station, edge -> (!edge.outgoing || edge.incoming));
+	private static double computeTimeConnectedAgents(Agent me, HashMap<Agent, Object> others, Station station, List<Agent> connectedAgents) {
+		double result = 0.0;
+		for (Agent agent : connectedAgents) {
+			result += estimatedWorkTimeLeft(agent, others, station);
+		}
+		return result;
 	}
 	
-	private static List<ResultPair> getIncomingTimeConnectedStations(Station station) {
-		return getTimeConnectedStations(station, edge -> (edge.outgoing || !edge.incoming));
-	}
-	
-	private static List<Station> getUndirectedTimeConnectedStations(Station station) {
-		List<Station> result = new ArrayList<>();
+	private static List<Agent> getTimeConnectedAgents(Station station, Predicate<TimeEdge> pred) {
+		List<Agent> result = new ArrayList<>();
 		for (TimeEdge edge : station.type.timeEdges) {
+			if (pred.test(edge)) continue;
 			if (TEXT_OUTPUT) System.out.println(String.format("Time Edge: Station: %s ConnectedType: %s Incoming: %b Outgoing: %b", station.name, edge.connectedType.name, edge.incoming, edge.outgoing));
-			if (edge.incoming || edge.outgoing) continue;
-			if (edge.connectedType instanceof StationType stationType) {
-					result.addAll(stationType.components);
+			if (edge.connectedType instanceof AgentType agentType) {
+				result.addAll(agentType.components);
 			}
 		}
 		return result;
 	}
 	
+	// filter undirected, directed outgoing, directed incoming edges 
+	private static Predicate<TimeEdge> undirectedPredicate = edge -> (!edge.incoming && !edge.outgoing);
+	private static Predicate<TimeEdge> outgoingDirectedPredicate = edge -> (!edge.outgoing || edge.incoming);
+	private static Predicate<TimeEdge> incomingDirectedPredicate = edge -> (edge.outgoing || !edge.incoming);
+	
+	
+	private static double computeOutgoingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
+		double result = 0.0;
+		
+		result +=  computeTimeConnectedStations(me, others, getTimeConnectedStations(station, outgoingDirectedPredicate));
+		
+		result +=  computeTimeConnectedAgents(me, others, station, getTimeConnectedAgents(station, outgoingDirectedPredicate));
+		
+		return result;
+	} 
+	
+	private static double computeIncomingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
+		double result = 0.0;
+		
+		result += computeTimeConnectedStations(me, others, getTimeConnectedStations(station, incomingDirectedPredicate));
+		
+		result += computeTimeConnectedAgents(me, others, station, getTimeConnectedAgents(station, incomingDirectedPredicate));
+		
+		return result;
+	}
+	
+	private static double computeUndirectedTimeConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
+		double result = 0.0;
+		
+		result += computeTimeConnectedStations(me, others, getTimeConnectedStations(station, undirectedPredicate));
+		
+		result += computeTimeConnectedAgents(me, others, station, getTimeConnectedAgents(station, undirectedPredicate));
+		
+		return result;
+	}
 	
 	record Pair(StationType station, Integer cost) implements Comparable<Pair> {
 		@Override
@@ -401,10 +417,14 @@ public class Calculations {
 	
 	
 	private static int timeAtStation(Agent me, HashMap<Agent, Object> others, Station station) {
-		if (me.type.time == -1 && station.type.time == -1) return 1;
-		if (me.type.time == -1) return station.type.time;
-		if (station.type.time == -1) return me.type.time;
-		return Math.min(me.type.time, station.type.time);
+		return timeAtStation(me, station.type);
+	}
+	
+	private static int timeAtStation(Agent me, StationType stationType) {
+		if (me.type.time == -1 && stationType.time == -1) return 1;
+		if (me.type.time == -1) return stationType.time;
+		if (stationType.time == -1) return me.type.time;
+		return Math.min(me.type.time, stationType.time);
 	}
 	
 	private static double totalAgentTime(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -418,6 +438,18 @@ public class Calculations {
 			if (entry.getValue() == 0) continue;
 			result += timeAtStation(me, others ,entry.getKey());
 		}
+		
+		if (me.frequency > 0) {
+			int lowestTimeAtStation = Integer.MAX_VALUE;
+			for (VisitEdge edge : me.type.visitEdges) {
+				if (edge.connectedType instanceof StationType stationType) {
+					lowestTimeAtStation = Math.max(lowestTimeAtStation, timeAtStation(me, stationType));
+				}
+			}
+			
+			result += lowestTimeAtStation * me.frequency;
+		}
+		
 		return result;
 	}
 	

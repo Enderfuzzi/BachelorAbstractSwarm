@@ -1,0 +1,10 @@
+AgentLearning,CHANGEDStorage.xml,100,20
+AgentLearning,CHANGEDWardRound.xml,100,20
+AgentLearning,CHANGEDXRayScheduling2.xml,100,20
+AgentLearning,NEWManufacturingProcess.xml,100,20
+AgentLearning,NEWPackaging.xml,100,20
+AgentLearning,NEWProductionLines.xml,100,20
+AgentLearning,NEWSupermarket.xml,100,20
+AgentLearning,SCALEDCrossroads.xml,100,20
+AgentLearning,SCALEDDelivery.xml,100,20
+AgentLearning,SCALEDXRayScheduling.xml,100,20

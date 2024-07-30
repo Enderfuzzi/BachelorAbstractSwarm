@@ -225,7 +225,7 @@ public class AbstractSwarmAgentInterface
 		
 		
 		if (TEXT_OUTPUT) System.out.println(String.format("Time: %d Current Station: %s Agent: %s Value %f",time, station.name, me.name, result));
-		
+		//System.out.println(timeStatistic);
 		return result;
 	}
 	

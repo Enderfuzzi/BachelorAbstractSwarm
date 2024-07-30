@@ -28,6 +28,8 @@ public class Calculations {
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
+	private static HashMap<Agent, List<String>> decision = new HashMap<>();
+	
 	public static double evaluate(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, Station station,
 			TimeStatistics timeStatistic) {
 
@@ -98,6 +100,8 @@ public class Calculations {
 				if (timeStatistic.lastRunCompleted) statistic.recover();
 			}
 			
+			decision.clear();
+			
 			if (TEXT_OUTPUT) System.out.println(statistic.getAverage());
 		}
 		
@@ -115,7 +119,6 @@ public class Calculations {
 
 			if (stationFrequency) {
 				currentNode.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
-				
 			}
 			if (agentFrequency) {
 				currentNode.addNode(attributeNodes.get(Attribute.AGENT_FREQUENCY));
@@ -133,12 +136,17 @@ public class Calculations {
 		}
 		
 		
-		if ((!stationFrequency && !agentFrequency || !statistic.compare("distribution")) && !statistic.compare("space") && !statistic.compare("path") && 
-				!statistic.compare("directedTime") && !statistic.compare("undirectedTime")) {
+
+		if ((!stationFrequency && !agentFrequency || !statistic.compare("distribution")) 
+				&& !statistic.compare("space") && !statistic.compare("path") && !statistic.compare("directedTime") && !statistic.compare("undirectedTime")) {
 			currentNode.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 		}
 		
 		firstRun = false;
+		
+		if (!decision.containsKey(me)) {
+			decision.put(me, statistic.getCurrentComparison());
+		}
 		
 		return currentNode.evaluate(me, others, station);
 	}
@@ -157,8 +165,12 @@ public class Calculations {
 			if (activeValue > value) activeValue = value;
 		}
 
+		if (decision.containsKey(me)) {
+			statistic.triggerCompare(decision.get(me), value);
+			decision.remove(me);
+		}
 		
-		statistic.triggerCompare();
+		
 		
 		statistic.normalize();
 		
@@ -220,16 +232,23 @@ public class Calculations {
 				}
 			}
 			return result;
+			//return result + 2 * stationSpace(me, others, station)
+			/*
+			 * double result = 2.0 * stationTargeted(me, others, pair.station) + 2.0 * stationSpace(me, others, station);
+			 * if (me.previousTarget == station) result += 2.0
+			 * return result
+			 */
 		} else {
 			return 0;
 		}
 	}
 	
 	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
+		/*
 		if (me.necessities.getOrDefault(station, -1) > 0) {
 			return 2.0;
 		}
-		
+		*/
 		double result = 0.0;
 		for (Object object : others.values()) {
 			if (object == null) continue;
@@ -239,6 +258,7 @@ public class Calculations {
 			}
 		}
 		return result + 2.0 * stationSpace(me, others, station);
+		// return 2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
 	}
 	
 	/**
@@ -798,10 +818,10 @@ class ProbabilityStatistic {
 		}
 	}
 	
-	public void triggerCompare() {
-		for (Pair pair : map.values()) {
-			if (pair.compare()) {
-				pair.increaseThreshold(0.15);
+	public void triggerCompare(List<String> parameters, double reward) {
+		for (String parameter : parameters) {
+			if (map.containsKey(parameter)) {
+				map.get(parameter).increaseThreshold(0.2 * reward);
 			}
 		}
 	}
@@ -847,6 +867,16 @@ class ProbabilityStatistic {
 			sb.append(String.format("[TimeStatistic Average]: %s -> %f\n", name, computeAverage(name)));
 		}
 		return sb.toString();
+	}
+	
+	public List<String> getCurrentComparison() {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<String, Pair> entry : map.entrySet()) {
+			if (entry.getValue().compare()) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
 	}
 	
 	private class Pair {

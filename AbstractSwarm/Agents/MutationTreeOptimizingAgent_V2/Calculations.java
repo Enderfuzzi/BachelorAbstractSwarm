@@ -300,7 +300,7 @@ public class Calculations {
 													
 						}
 						
-						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover")) {
+						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover") && treeFitness.size() > 0) {
 							
 							List<Tree> crossover = treeFitness.get(random.nextInt(treeFitness.size())).trees;
 							
@@ -376,71 +376,59 @@ public class Calculations {
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
 		
 		double result = 0.0;
-		if (me.type.size * me.type.components.size() <= stationSpace(me, others, station)) {
+		if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(me, others, station)) {
 			result += 1.0;
 		}
 		
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %d", me.name, station.name, me.type.size));
+		// if there are other stations suitable
 		List<StationType> used = new ArrayList<>();
 		for (VisitEdge edge : me.type.visitEdges) {
 			StationType stationType = (StationType) edge.connectedType;
+			if (stationType == station.type) continue;
 			if (used.contains(stationType)) continue;
 			used.add(stationType);
-			if (me.type.size * me.type.components.size() > stationSpace(stationType)) {
+			if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(stationType)) {
 				result -= 0.5;
 			}
 			
 		}
 		
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
+		
+		// if the other agents size exceeds this station prioities it
 		List<AgentType> usedAgent = new ArrayList<>();
 		usedAgent.add(me.type);
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
-			if (agent.type.size * agent.type.components.size() > stationSpace(me, others, station)) {
+			if (agentSize(agent, others, station) * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
+		// priority of stations with space
 		if (station.space != -1) {
-			if (station.space > me.type.size) {
+			if (station.space >= agentSize(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
 		return result;
 	}
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
 		if (station.frequency != -1) {
-			double result = 0.0;
-			if (me.previousTarget == station) result += 2.0;
-			for (Object object : others.values()) {
-				if (object == null) continue;
-				Object[] communication = (Object[]) object;
-				if (((Station) communication[0]) == station) {
-					result -= 2.0;
-				}
-			}
-			return result;
-		} else {
-			return 0;
+			 double result = -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
+			 if (me.previousTarget == station) result += 2.0;
+			 return result;
 		}
+		return 0.0;
 	}
 	
 	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
-		if (me.necessities.getOrDefault(station, -1) > 0) {
-			return 2.0;
-		}
-		
-		double result = 0.0;
-		for (Object object : others.values()) {
-			if (object == null) continue;
-			Object[] communication = (Object[]) object;
-			if (((Station) communication[0]) == station) {
-				result -= 2.0;
-			}
-		}
-		return result + 2.0 * stationSpace(me, others, station);
+		return -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
 	}
 	
 	/**

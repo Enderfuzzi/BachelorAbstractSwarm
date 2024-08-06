@@ -170,10 +170,7 @@ public class Calculations {
 			decision.remove(me);
 		}
 		
-		
-		
 		statistic.normalize();
-		
 		
 		if (lastValue != time) {
 			lastValue = time;
@@ -224,50 +221,21 @@ public class Calculations {
 			}
 		}
 		
-		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
-		//TODO FIX
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
 		return result;
 	}
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
 		if (station.frequency != -1) {
-			double result = 0.0;
-			if (me.previousTarget == station) result += 2.0;
-			for (Object object : others.values()) {
-				if (object == null) continue;
-				Object[] communication = (Object[]) object;
-				if (((Station) communication[0]) == station) {
-					result -= 2.0;
-				}
-			}
-			return result;
-			//return result + 2 * stationSpace(me, others, station)
-			/*
-			 * double result = -2.0 * stationTargeted(me, others, pair.station) + 2.0 * stationSpace(me, others, station);
-			 * if (me.previousTarget == station) result += 2.0
-			 * return result
-			 */
-		} else {
-			return 0;
+			 double result = -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
+			 if (me.previousTarget == station) result += 2.0;
+			 return result;
 		}
+		return 0.0;
 	}
 	
 	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
-		/*
-		if (me.necessities.getOrDefault(station, -1) > 0) {
-			return 2.0;
-		}
-		*/
-		double result = 0.0;
-		for (Object object : others.values()) {
-			if (object == null) continue;
-			Object[] communication = (Object[]) object;
-			if (((Station) communication[0]) == station) {
-				result -= 2.0;
-			}
-		}
-		return result + 2.0 * stationSpace(me, others, station);
-		// return 2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
+		return -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
 	}
 	
 	/**

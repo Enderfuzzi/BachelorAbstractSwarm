@@ -174,37 +174,46 @@ public class Calculations {
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
 		
 		double result = 0.0;
-		if (me.type.size * me.type.components.size() <= stationSpace(me, others, station)) {
+		if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(me, others, station)) {
 			result += 1.0;
 		}
 		
+		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %d", me.name, station.name, me.type.size));
+		// if there are other stations suitable
 		List<StationType> used = new ArrayList<>();
 		for (VisitEdge edge : me.type.visitEdges) {
 			StationType stationType = (StationType) edge.connectedType;
+			if (stationType == station.type) continue;
 			if (used.contains(stationType)) continue;
 			used.add(stationType);
-			if (me.type.size * me.type.components.size() > stationSpace(stationType)) {
+			if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(stationType)) {
 				result -= 0.5;
 			}
 			
 		}
 		
+		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
+		
+		// if the other agents size exceeds this station prioities it
 		List<AgentType> usedAgent = new ArrayList<>();
 		usedAgent.add(me.type);
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
-			if (agent.type.size * agent.type.components.size() > stationSpace(me, others, station)) {
+			if (agentSize(agent, others, station) * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
+		// priority of stations with space
 		if (station.space != -1) {
-			if (station.space > me.type.size) {
+			if (station.space >= agentSize(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
+		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
+		//TODO FIX
 		return result;
 	}
 	
@@ -220,6 +229,12 @@ public class Calculations {
 				}
 			}
 			return result;
+			//return result + 2 * stationSpace(me, others, station)
+			/*
+			 * double result = -2.0 * stationTargeted(me, others, pair.station) + 2.0 * stationSpace(me, others, station);
+			 * if (me.previousTarget == station) result += 2.0
+			 * return result
+			 */
 		} else {
 			return 0;
 		}

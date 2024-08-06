@@ -31,6 +31,7 @@ public class Calculations {
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
+	private static HashMap<Agent, List<String>> decision = new HashMap<>();
 	
 	private static List<Tree> currentTrees = new ArrayList<>();
 	private static int currentTreeIndex = 0;
@@ -187,6 +188,8 @@ public class Calculations {
 			
 		}
 		
+		
+		
 		if (timeStatistic.newBestRun) {
 			bestTrees = new ArrayList<>(currentTrees);
 		}
@@ -221,7 +224,13 @@ public class Calculations {
 					if (TEXT_OUTPUT) System.out.println(baseProbability);
 					
 					baseProbability.newRandom();
-					baseProbability.reset();
+					if (timeStatistic.newBestRun || (timeStatistic.lastRunCompleted && timeStatistic.currentTwT <= Math.round(timeStatistic.lowestTwT * 1.6))) {
+						baseProbability.reset();
+					} else {
+						if (timeStatistic.lastRunCompleted) baseProbability.recover();
+					}
+					
+					decision.clear();
 					
 					if (TEXT_OUTPUT) System.out.println(baseProbability.getAverage());
 				}
@@ -263,6 +272,11 @@ public class Calculations {
 						!baseProbability.compare("directedTime") && !baseProbability.compare("undirectedTime")) {
 					evaluation.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 				}
+				
+				if (!decision.containsKey(me)) {
+					decision.put(me, baseProbability.getCurrentComparison());
+				}
+				
 			} else {
 				
 				if (!deactivateMutation) {
@@ -338,7 +352,11 @@ public class Calculations {
 			) {
 
 		if (generateTree || currentTreeIndex >= bestTrees.size()) {
-			baseProbability.triggerCompare();
+			
+			if (decision.containsKey(me)) {
+				baseProbability.triggerCompare(decision.get(me), value);
+				decision.remove(me);
+			}
 			
 			baseProbability.normalize();
 			
@@ -734,6 +752,8 @@ class ProbabilityStatistic {
 	
 	HashMap<String , Pair> map = new HashMap<>();
 	
+	HashMap<String, Double> initialValues = new HashMap<>();
+	
 	HashMap<String, List<Double>> pastValues = new HashMap<>();
 	
 	public ProbabilityStatistic(String...strings) {
@@ -743,6 +763,7 @@ class ProbabilityStatistic {
 	}
 	
 	public void add(String name, double threshold) {
+		initialValues.put(name, threshold);
 		map.put(name, new Pair(threshold));
 	}
 	
@@ -760,6 +781,14 @@ class ProbabilityStatistic {
 	public void setThreshold(String name, double newThreshold) {
 		if (map.containsKey(name)) {
 			map.get(name).threshold = newThreshold;
+		}
+	}
+	
+	public void recover() {
+		for (Map.Entry<String, Double> entry : initialValues.entrySet()) {
+			if (map.containsKey(entry.getKey())) {
+				map.get(entry.getKey()).setThreshold(entry.getValue());
+			}
 		}
 	}
 	
@@ -792,10 +821,10 @@ class ProbabilityStatistic {
 		}
 	}
 	
-	public void triggerCompare() {
-		for (Pair pair : map.values()) {
-			if (pair.compare()) {
-				pair.increaseThreshold(0.15);
+	public void triggerCompare(List<String> parameters, double reward) {
+		for (String parameter : parameters) {
+			if (map.containsKey(parameter)) {
+				map.get(parameter).increaseThreshold(0.2 * reward);
 			}
 		}
 	}
@@ -841,6 +870,16 @@ class ProbabilityStatistic {
 			sb.append(String.format("[TimeStatistic Average]: %s -> %f\n", name, computeAverage(name)));
 		}
 		return sb.toString();
+	}
+	
+	public List<String> getCurrentComparison() {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<String, Pair> entry : map.entrySet()) {
+			if (entry.getValue().compare()) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
 	}
 	
 	private class Pair {

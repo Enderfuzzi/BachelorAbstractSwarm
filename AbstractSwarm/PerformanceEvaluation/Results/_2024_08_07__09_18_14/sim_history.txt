@@ -1,0 +1,10 @@
+MutationTreeOptimizingAgent_V2,CHANGEDManufacturingProcess.xml,1000,20
+MutationTreeOptimizingAgent_V2,CHANGEDSupermarket.xml,1000,20
+MutationTreeOptimizingAgent_V2,CHANGEDTreatments.xml,1000,20
+MutationTreeOptimizingAgent_V2,NEWElevator.xml,1000,20
+MutationTreeOptimizingAgent_V2,NEWPatientTransportation.xml,1000,20
+MutationTreeOptimizingAgent_V2,NEWStartingJobs.xml,1000,20
+MutationTreeOptimizingAgent_V2,NEWStorage2.xml,1000,20
+MutationTreeOptimizingAgent_V2,SCALEDPackaging.xml,1000,20
+MutationTreeOptimizingAgent_V2,SCALEDProductionLines.xml,1000,20
+MutationTreeOptimizingAgent_V2,SCALEDWardRound.xml,1000,20

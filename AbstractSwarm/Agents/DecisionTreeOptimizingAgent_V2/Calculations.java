@@ -21,10 +21,10 @@ public class Calculations {
 	private static boolean agentFrequency = false;
 	
 	
-	private static Node activeNode;
-	private static double activeValue;
+	//private static Node activeNode;
+	//private static double activeValue;
 	
-	public static ProbabilityStatistic statistic = new ProbabilityStatistic("path", "space", "distribution");
+	public static ProbabilityStatistic probabilityStatistic = new ProbabilityStatistic("path", "space", "distribution");
 	
 	private static final boolean TEXT_OUTPUT = false;
 	
@@ -57,16 +57,13 @@ public class Calculations {
 			}
 			attributeNodes.put(Attribute.PATH_COST, new Node(Operator.MULTIPLICATION, -1.0, new Node((OwnConsumer) Calculations::pathCost)));
 			attributeNodes.put(Attribute.STATION_SPACE, new Node(Operator.DIVISION, new Node((OwnConsumer) Calculations::stationSpace), new Node((OwnConsumer) Calculations::agentSize)));
-			attributeNodes.put(Attribute.AGENT_TIME, new Node(Operator.DIVISION, new Node((OwnConsumer) Calculations::totalAgentTime), new Node((OwnConsumer) Calculations::estimatedWorkTimeLeft)));
-			
-		
-			
+	
 			if (directedTimeEdges) {
-				statistic.add("directedTime");
+				probabilityStatistic.add("directedTime");
 			}
 			
 			if (undirectedTimeEdges) {
-				statistic.add("undirectedTime");
+				probabilityStatistic.add("undirectedTime");
 			}
 			
 		}
@@ -91,31 +88,32 @@ public class Calculations {
 		
 		
 		if (timeStatistic.newRun) {
-			if (TEXT_OUTPUT) System.out.println(statistic);
+			if (TEXT_OUTPUT) System.out.println(probabilityStatistic);
 			
-			statistic.newRandom();
+			probabilityStatistic.newRandom();
 			if (timeStatistic.newBestRun || (timeStatistic.lastRunCompleted && timeStatistic.currentTwT <= Math.round(timeStatistic.lowestTwT * 1.6))) {
-				statistic.reset();
+				probabilityStatistic.reset();
 			} else {
-				if (timeStatistic.lastRunCompleted) statistic.recover();
+				//if (timeStatistic.lastRunCompleted) probabilityStatistic.recover(); // todo completed run?
+				probabilityStatistic.recover();
 			}
 			
 			decision.clear();
 			
-			if (TEXT_OUTPUT) System.out.println(statistic.getAverage());
+			if (TEXT_OUTPUT) System.out.println(probabilityStatistic.getAverage());
 		}
 		
 		Node currentNode = new Node(0);
 		
-		if (statistic.compare("path")) {
+		if (probabilityStatistic.compare("path")) {
 			currentNode.addNode(attributeNodes.get(Attribute.PATH_COST));
 		}
 		
-		if (statistic.compare("space")) {
+		if (probabilityStatistic.compare("space")) {
 			currentNode.addNode(attributeNodes.get(Attribute.STATION_SPACE));
 		}
 		
-		if (statistic.compare("distribution")) {
+		if (probabilityStatistic.compare("distribution")) {
 
 			if (stationFrequency) {
 				currentNode.addNode(attributeNodes.get(Attribute.STATION_FREQUENCY));
@@ -126,26 +124,25 @@ public class Calculations {
 			}
 		}
 		
-		if (statistic.compare("directedTime")) {
+		if (probabilityStatistic.compare("directedTime")) {
 			currentNode.addNode(attributeNodes.get(Attribute.INCOMING_TIME_CONNECTION));
 			currentNode.addNode(attributeNodes.get(Attribute.OUTGOING_TIME_CONNECTION));
 		}
 		
-		if (statistic.compare("undirectedTime")) {
+		if (probabilityStatistic.compare("undirectedTime")) {
 			currentNode.addNode(attributeNodes.get(Attribute.UNDIRECTED_TIME_CONNECTION));
 		}
 		
-		
 
-		if ((!stationFrequency && !agentFrequency || !statistic.compare("distribution")) 
-				&& !statistic.compare("space") && !statistic.compare("path") && !statistic.compare("directedTime") && !statistic.compare("undirectedTime")) {
+		if ((!stationFrequency && !agentFrequency || !probabilityStatistic.compare("distribution")) 
+				&& !probabilityStatistic.compare("space") && !probabilityStatistic.compare("path") && !probabilityStatistic.compare("directedTime") && !probabilityStatistic.compare("undirectedTime")) {
 			currentNode.addNode(attributeNodes.get(Attribute.MAX_DISTRIBUTION));
 		}
 		
 		firstRun = false;
 		
 		if (!decision.containsKey(me)) {
-			decision.put(me, statistic.getCurrentComparison());
+			decision.put(me, probabilityStatistic.getCurrentComparison());
 		}
 		
 		return currentNode.evaluate(me, others, station);
@@ -161,33 +158,33 @@ public class Calculations {
 			TimeStatistics timeStatistic
 			) {
 		
-		if (activeNode != null) {
-			if (activeValue > value) activeValue = value;
-		}
+		//if (activeNode != null) {
+		//	if (activeValue > value) activeValue = value;
+		//}
 
 		if (decision.containsKey(me)) {
-			statistic.triggerCompare(decision.get(me), value);
+			probabilityStatistic.triggerCompare(decision.get(me), value);
 			decision.remove(me);
 		}
 		
-		statistic.normalize();
+		probabilityStatistic.normalize();
 		
 		if (lastValue != time) {
 			lastValue = time;
 			
-			statistic.newRandom();
+			probabilityStatistic.newRandom();
 		}
 	}
 	
 	
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
-		
+		if (me.frequency == -1) return 0.0;
 		double result = 0.0;
 		if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(me, others, station)) {
 			result += 1.0;
 		}
 		
-		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %d", me.name, station.name, me.type.size));
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %d", me.name, station.name, me.type.size));
 		// if there are other stations suitable
 		List<StationType> used = new ArrayList<>();
 		for (VisitEdge edge : me.type.visitEdges) {
@@ -201,7 +198,7 @@ public class Calculations {
 			
 		}
 		
-		System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
+		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
 		
 		// if the other agents size exceeds this station prioities it
 		List<AgentType> usedAgent = new ArrayList<>();
@@ -209,17 +206,31 @@ public class Calculations {
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
+			/*
+			boolean check = false;
+			for (VisitEdge edge: agent.type.visitEdges) {
+				StationType stationType = (StationType) edge.connectedType;
+				if (stationType == station.type) {
+					check = true;
+					break;
+				}
+			}
+			if (!check) continue;
+			*/
 			if (agentSize(agent, others, station) * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
 		// priority of stations with space
-		if (station.space != -1) {
-			if (station.space >= agentSize(me, others, station)) {
+		/*if (station.space == -1 || station.space >= agentSize(me, others, station)) {
 				result += 0.5;
-			}
 		}
+		*/
+		
+		if (station.space >= agentSize(me, others, station)) {
+			result += 0.5;
+	}
 		
 		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
 		return result;
@@ -227,15 +238,22 @@ public class Calculations {
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
 		if (station.frequency != -1) {
-			 double result = -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
-			 if (me.previousTarget == station) result += 2.0;
+			 double result = 0.0;
+			 if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
+				 result = -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
+			 }
+			 if (me.previousTarget.type == station.type) result += 1.0;
+			 result -= timeAtStation(me, station.type) * 1.0;
 			 return result;
 		}
 		return 0.0;
 	}
 	
-	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
-		return -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
+	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {
+		if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
+			return -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
+		}
+		return 2 / (stationTargeted(me,others,station) + 1);
 	}
 	
 	/**
@@ -244,7 +262,7 @@ public class Calculations {
 	 * @return The space of a station or 1 if the station has no space attribute
 	 */
 	private static int stationSpace(StationType station) {
-		if (station.space == -1) return 1;
+		if (station.space == -1) return Integer.MAX_VALUE;
 		return station.space;
 	}
 	
@@ -306,7 +324,7 @@ public class Calculations {
 		for (ResultPair pair : connectedStations) {
 			result += timeAtStation(me, others, pair.station);
 			result += pair.cost;
-			result += stationTargeted(me, others, pair.station);
+			result += stationTargeted(me, others, pair.station) * 3;
 		}
 		return result;
 	}
@@ -330,6 +348,7 @@ public class Calculations {
 		for (Agent agent : connectedAgents) {
 			result += estimatedWorkTimeLeft(agent, others, station);
 		}
+		if (TEXT_OUTPUT) System.out.println(String.format("Agent: %s Station: %s Unconected Time Agent Value: %f", me.name, station.name, result));
 		return result;
 	}
 	
@@ -346,7 +365,7 @@ public class Calculations {
 	}
 	
 	// filter undirected, directed outgoing, directed incoming edges 
-	private static Predicate<TimeEdge> undirectedPredicate = edge -> (!edge.incoming && !edge.outgoing);
+	private static Predicate<TimeEdge> undirectedPredicate = edge -> (edge.incoming || edge.outgoing);
 	private static Predicate<TimeEdge> outgoingDirectedPredicate = edge -> (!edge.outgoing || edge.incoming);
 	private static Predicate<TimeEdge> incomingDirectedPredicate = edge -> (edge.outgoing || !edge.incoming);
 	
@@ -434,9 +453,9 @@ public class Calculations {
 	
 	
 	private static int estimatedWorkTimeLeft(Agent me, HashMap<Agent, Object> others, Station station) {
-		int result = 0;		
+		int result = 0;
 		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
-			if (entry.getValue() == 0) continue;
+			if (entry.getValue() < 1) continue;
 			result += timeAtStation(me, others ,entry.getKey());
 		}
 		
@@ -444,7 +463,7 @@ public class Calculations {
 			int lowestTimeAtStation = Integer.MAX_VALUE;
 			for (VisitEdge edge : me.type.visitEdges) {
 				if (edge.connectedType instanceof StationType stationType) {
-					lowestTimeAtStation = Math.max(lowestTimeAtStation, timeAtStation(me, stationType));
+					lowestTimeAtStation = Math.min(lowestTimeAtStation, timeAtStation(me, stationType));
 				}
 			}
 			
@@ -453,7 +472,6 @@ public class Calculations {
 		
 		return result;
 	}
-	
 	
 	
 	/**

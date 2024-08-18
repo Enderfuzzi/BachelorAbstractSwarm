@@ -20,10 +20,6 @@ public class Calculations {
 	private static boolean stationFrequency = false;
 	private static boolean agentFrequency = false;
 	
-	
-	//private static Node activeNode;
-	//private static double activeValue;
-	
 	public static ProbabilityStatistic probabilityStatistic = new ProbabilityStatistic("path", "space", "distribution");
 	
 	private static final boolean TEXT_OUTPUT = false;
@@ -94,7 +90,6 @@ public class Calculations {
 			if (timeStatistic.newBestRun || (timeStatistic.lastRunCompleted && timeStatistic.currentTwT <= Math.round(timeStatistic.lowestTwT * 1.6))) {
 				probabilityStatistic.reset();
 			} else {
-				//if (timeStatistic.lastRunCompleted) probabilityStatistic.recover(); // todo completed run?
 				probabilityStatistic.recover();
 			}
 			
@@ -157,10 +152,6 @@ public class Calculations {
 	public static void reward(Agent me, HashMap<Agent, Object> others, List<Station> stations, long time, double value,
 			TimeStatistics timeStatistic
 			) {
-		
-		//if (activeNode != null) {
-		//	if (activeValue > value) activeValue = value;
-		//}
 
 		if (decision.containsKey(me)) {
 			probabilityStatistic.triggerCompare(decision.get(me), value);
@@ -206,7 +197,7 @@ public class Calculations {
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
-			/*
+			
 			boolean check = false;
 			for (VisitEdge edge: agent.type.visitEdges) {
 				StationType stationType = (StationType) edge.connectedType;
@@ -216,37 +207,31 @@ public class Calculations {
 				}
 			}
 			if (!check) continue;
-			*/
+			
 			if (agentSize(agent, others, station) * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
-		// priority of stations with space
-		/*if (station.space == -1 || station.space >= agentSize(me, others, station)) {
-				result += 0.5;
-		}
-		*/
-		
 		if (station.space >= agentSize(me, others, station)) {
 			result += 0.5;
-	}
+		}
 		
 		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
 		return result;
 	}
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
-		if (station.frequency != -1) {
-			 double result = 0.0;
-			 if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
-				 result = -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
-			 }
-			 if (me.previousTarget.type == station.type) result += 1.0;
-			 result -= timeAtStation(me, station.type) * 1.0;
-			 return result;
+		if (station.frequency == -1) return 0.0;
+		double result = 0.0;
+		
+		if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
+			result = -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
 		}
-		return 0.0;
+		if (station.space != -1) result += station.space / (double) agentSize(me, others, station);
+		if (me.previousTarget.type == station.type) result += 1.0;
+		result -= timeAtStation(me, station.type) * 1.0;
+		return result;
 	}
 	
 	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {

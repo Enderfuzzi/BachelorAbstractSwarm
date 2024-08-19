@@ -242,9 +242,9 @@ public class Calculations {
 	}
 	
 	/**
-	 * Extracts the initial space of a station type. Returns 1 if the station type has no space attribute.
+	 * Extracts the initial space of a station type. Returns Integer max value if the station type has no space attribute.
 	 * @param station The station type to check.
-	 * @return The space of a station or 1 if the station has no space attribute
+	 * @return The space of a station or Max value if the station has no space attribute
 	 */
 	private static int stationSpace(StationType station) {
 		if (station.space == -1) return Integer.MAX_VALUE;

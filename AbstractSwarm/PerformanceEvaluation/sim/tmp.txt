@@ -205,3 +205,15 @@ DecisionTreeOptimizingAgent_V2,SCALEDPackaging.xml,1000,20
 DecisionTreeOptimizingAgent_V2,SCALEDProductionLines.xml,1000,20 
 DecisionTreeOptimizingAgent_V2,SCALEDWardRound.xml,1000,20 
 _sim_end
+
+DecisionTreeOptimizingAgent_V2,CHANGEDManufacturingProcess.xml,100,20 
+DecisionTreeOptimizingAgent_V2,CHANGEDSupermarket.xml,100,20 
+DecisionTreeOptimizingAgent_V2,CHANGEDTreatments.xml,100,20 
+DecisionTreeOptimizingAgent_V2,NEWElevator.xml,100,20 
+DecisionTreeOptimizingAgent_V2,NEWPatientTransportation.xml,100,20 
+DecisionTreeOptimizingAgent_V2,NEWStartingJobs.xml,100,20 
+DecisionTreeOptimizingAgent_V2,NEWStorage2.xml,100,20 
+DecisionTreeOptimizingAgent_V2,SCALEDPackaging.xml,100,20 
+DecisionTreeOptimizingAgent_V2,SCALEDProductionLines.xml,100,20 
+DecisionTreeOptimizingAgent_V2,SCALEDWardRound.xml,100,20 
+_sim_end

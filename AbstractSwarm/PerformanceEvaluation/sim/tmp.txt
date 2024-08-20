@@ -255,3 +255,16 @@ DecisionTreeOptimizingAgent_V2,SCALEDStorage2.xml,100,20
 _sim_end
 
 
+MutationTreeOptimizingAgent_V2,CHANGEDMultiAgentShortestPaths.xml,100,20 
+MutationTreeOptimizingAgent_V2,CHANGEDSchoolTimetabling.xml,100,20 
+MutationTreeOptimizingAgent_V2,CHANGEDStartingJobs.xml,100,20 
+MutationTreeOptimizingAgent_V2,NEWBusLines.xml,100,20 
+MutationTreeOptimizingAgent_V2,NEWFasterFood.xml,100,20 
+MutationTreeOptimizingAgent_V2,NEWLabAndAnalytics.xml,100,20 
+MutationTreeOptimizingAgent_V2,NEWPaintShop.xml,100,20 
+MutationTreeOptimizingAgent_V2,SCALEDElevator.xml,100,20 
+MutationTreeOptimizingAgent_V2,SCALEDPatientTransportation.xml,100,20 
+MutationTreeOptimizingAgent_V2,SCALEDStorage2.xml,100,20 
+_sim_end
+
+

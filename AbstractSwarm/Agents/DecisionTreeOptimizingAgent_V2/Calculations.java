@@ -77,10 +77,6 @@ public class Calculations {
 		if (agentSize(me, others, station) > stationSpace(me, others, station)) {
 			return -100;
 		}
-		//station is not reachable
-		if (pathCost(me.previousTarget.type, station.type) == -1) {
-			return -100;
-		}
 		
 		
 		if (timeStatistic.newRun) {
@@ -295,10 +291,12 @@ public class Calculations {
 	 * @return false if a station is not reachable from the given station.
 	 */
 	private static boolean otherStationsReachable(Agent me, Station station) {
+		if (pathCost(me.previousTarget.type, station.type, edge -> (false)) == -1) return false;
 		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
 			if (entry.getValue() <= 0) continue;
-			if (pathCost(station.type, entry.getKey().type) == -1) return false;
+			if (pathCost(station.type, entry.getKey().type, edge -> (edge.incoming)) == -1) return false;
 		}
+		
 		return true;
 	}
 	
@@ -392,7 +390,7 @@ public class Calculations {
 		}	
 	};
 	
-	private static int pathCost(StationType start, StationType target) {
+	private static int pathCost(StationType start, StationType target, Predicate<PlaceEdge> predicate) {
 		PriorityQueue<Pair> queue = new PriorityQueue<>();
 		List<StationType> used = new ArrayList<>();
 		queue.add(new Pair(start, 0));
@@ -406,10 +404,9 @@ public class Calculations {
 			}
 			
 			for (PlaceEdge edge : current.station().placeEdges) {
-				if (edge.incoming) continue;
+				if (predicate.test(edge)) continue;
 				queue.add(new Pair((StationType) edge.connectedType, current.cost() + edge.weight));
-			}
-			
+			}	
 		}
 		return -1;
 	}
@@ -417,8 +414,9 @@ public class Calculations {
 	private static int pathCost(Agent me, HashMap<Agent, Object> others, Station station) {
 		// speed is 1 for each scenario
 		// if speed should be considered then we have to divide the path cost with the agent speed
-		return pathCost(me.previousTarget.type, station.type);
+		return pathCost(me.previousTarget.type, station.type, edge -> (false));
 	}
+	
 	
 	
 	private static int timeAtStation(Agent me, HashMap<Agent, Object> others, Station station) {

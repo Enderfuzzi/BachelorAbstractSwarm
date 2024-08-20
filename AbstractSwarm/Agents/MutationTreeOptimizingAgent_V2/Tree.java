@@ -88,4 +88,9 @@ public class Tree implements Node{
 	public void setRoot(Node node) {
 		this.root = node;
 	}
+	
+	public List<Node> getNodes() {
+		if (isEmpty()) return new ArrayList<>();
+		return root.getNodes();
+	}
 }

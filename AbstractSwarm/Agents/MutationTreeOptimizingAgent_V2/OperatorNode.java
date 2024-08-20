@@ -100,5 +100,12 @@ public class OperatorNode implements Node {
 		return op.equals(operatorNode.op) && left.equals(operatorNode.left) && right.equals(operatorNode.right);
 	}
 
+	public List<Node> getNodes() {
+		ArrayList<Node> result = new ArrayList<>();
+		result.addAll(left.getNodes());
+		result.add(this);
+		result.addAll(right.getNodes());
+		return result;
+	}
 	
 }

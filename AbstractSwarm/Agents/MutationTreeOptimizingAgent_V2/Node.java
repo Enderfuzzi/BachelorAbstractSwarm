@@ -20,4 +20,8 @@ public interface Node {
 	List<Node> getLeafNodes();
 	
 	List<OperatorNode> getOperatorNodes();
+	
+	default List<Node> getNodes() {
+		return getLeafNodes();
+	}
 }

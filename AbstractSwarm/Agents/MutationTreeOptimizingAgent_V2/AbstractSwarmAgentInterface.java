@@ -171,8 +171,7 @@ public class AbstractSwarmAgentInterface
 			
 			timeStatistic.newRun = true;
 			
-			
-			
+
 			if (timeStatistic.numberOfRuns == 100 && bestSolution != null) {
 				if (TEXT_OUTPUT) System.out.print(bestSolution);
 				if (TEXT_OUTPUT) System.out.print(bestSolution.predictedTimePlanning());

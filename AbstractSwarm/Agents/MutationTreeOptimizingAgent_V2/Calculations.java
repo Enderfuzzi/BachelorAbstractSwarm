@@ -127,12 +127,14 @@ public class Calculations {
 				baseProbability.add("undirectedTime");
 			}
 			
-			mutationProbability.add("mutation", 0.8);
-			mutationProbability.add("crossover", 0.2);
-			mutationProbability.add("largeCrossover", 0.2);
+			//TODO Trade less mutation rate into more crossover rate
 			
-			basicMutationProbability.add("value", 0.5);
-			basicMutationProbability.add("operator", 0.5);
+			mutationProbability.add("mutation", 0.6);
+			mutationProbability.add("crossover", 0.5);
+			mutationProbability.add("largeCrossover", 0.3);
+			
+			basicMutationProbability.add("value", 0.4);
+			basicMutationProbability.add("operator", 0.6);
 			
 		}
 		
@@ -147,10 +149,6 @@ public class Calculations {
 		}
 		// agent to large
 		if (agentSize(me, others, station) > stationSpace(me, others, station)) {
-			return -100;
-		}
-		//station is not reachable
-		if (pathCost(me.previousTarget.type, station.type) == -1) {
 			return -100;
 		}
 		
@@ -203,7 +201,7 @@ public class Calculations {
 		
 		if (timeStatistic.newRun && !generateTree) {
 			mutationProbability.newRandom();
-			if (mutationProbability.compare("largeCrossover")) {
+			if (mutationProbability.compare("largeCrossover") && !treeFitness.isEmpty()) {
 				deactivateMutation = true;
 				
 				crossoverTree = TreeMutation.largeCrossover(currentTrees, treeFitness.get(random.nextInt(treeFitness.size())).trees);
@@ -218,7 +216,7 @@ public class Calculations {
 		if (timeStatistic.lastValue != timeStatistic.time) {
 			currentTreeIndex++;	
 			
-			if (generateTree || currentTreeIndex >= bestTrees.size()) {
+			if (generateTree || currentTreeIndex >= bestTrees.size() || (!deactivateMutation && currentTreeIndex >= crossoverTree.size())) {
 			
 				if (timeStatistic.newRun) {
 					if (TEXT_OUTPUT) System.out.println(baseProbability);
@@ -227,7 +225,7 @@ public class Calculations {
 					if (timeStatistic.newBestRun || (timeStatistic.lastRunCompleted && timeStatistic.currentTwT <= Math.round(timeStatistic.lowestTwT * 1.6))) {
 						baseProbability.reset();
 					} else {
-						if (timeStatistic.lastRunCompleted) baseProbability.recover();
+						baseProbability.recover();
 					}
 					
 					decision.clear();
@@ -292,15 +290,19 @@ public class Calculations {
 							
 							if (basicMutationProbability.compare("value")) {
 								evaluation = TreeMutation.valueMutation(evaluation);
+							} else {
+								evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
 							}
-							
+							//TODO guarantee a mutation if mutation is selected
+							/**
 							if (basicMutationProbability.compare("operator")) {
 								evaluation = TreeMutation.mutateOperator(mutationStatistic, evaluation);
 							}
+							*/
 													
 						}
 						
-						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover") && treeFitness.size() > 0) {
+						if (!mutationProbability.compare("mutation") && mutationProbability.compare("crossover") && !treeFitness.isEmpty()) {
 							
 							List<Tree> crossover = treeFitness.get(random.nextInt(treeFitness.size())).trees;
 							
@@ -332,7 +334,7 @@ public class Calculations {
 			evaluation = currentTrees.get(currentTrees.size() - 1);
 		} 
 		
-		if (timeStatistic.numberOfRuns >= 100) {
+		if (timeStatistic.numberOfRuns >= 30) {
 			generateTree = false;
 		}
 		
@@ -374,7 +376,7 @@ public class Calculations {
 	
 	
 	private static double computeAgentFrequency(Agent me,  HashMap<Agent, Object> others, Station station) {
-		
+		if (me.frequency == -1) return 0.0;
 		double result = 0.0;
 		if (agentSize(me, others, station) * me.type.components.size() <= stationSpace(me, others, station)) {
 			result += 1.0;
@@ -402,16 +404,24 @@ public class Calculations {
 		for (Agent agent : others.keySet()) {
 			if (usedAgent.contains(agent.type)) continue;
 			usedAgent.add(agent.type);
+			
+			boolean check = false;
+			for (VisitEdge edge: agent.type.visitEdges) {
+				StationType stationType = (StationType) edge.connectedType;
+				if (stationType == station.type) {
+					check = true;
+					break;
+				}
+			}
+			if (!check) continue;
+			
 			if (agentSize(agent, others, station) * agent.type.components.size() > stationSpace(me, others, station)) {
 				result += 0.5;
 			}
 		}
 		
-		// priority of stations with space
-		if (station.space != -1) {
-			if (station.space >= agentSize(me, others, station)) {
-				result += 0.5;
-			}
+		if (station.space >= agentSize(me, others, station)) {
+			result += 0.5;
 		}
 		
 		if (TEXT_OUTPUT) System.out.println(String.format("[Agent Frequency]: Station: %s, Agent: %s, Result: %f", me.name, station.name, result));
@@ -419,16 +429,23 @@ public class Calculations {
 	}
 	
 	private static double stationFrequency(Agent me, HashMap<Agent, Object> others, Station station) {
-		if (station.frequency != -1) {
-			 double result = -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
-			 if (me.previousTarget == station) result += 2.0;
-			 return result;
+		if (station.frequency == -1) return 0.0;
+		double result = 0.0;
+		
+		if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
+			result = -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
 		}
-		return 0.0;
+		if (station.space != -1) result += station.space / (double) agentSize(me, others, station);
+		if (me.previousTarget.type == station.type) result += 1.0;
+		result -= timeAtStation(me, station.type) * 1.0;
+		return result;
 	}
 	
 	private static double maxDistribution(Agent me, HashMap<Agent, Object> others, Station station) {		
-		return -2.0 * stationTargeted(me, others, station) + 2.0 * stationSpace(me, others, station);
+		if (stationSpace(me, others, station) != Integer.MAX_VALUE) {
+			return -1.0 * stationTargeted(me, others, station) + 1.0 * stationSpace(me, others, station);
+		}
+		return 2 / (stationTargeted(me,others,station) + 1);
 	}
 	
 	/**
@@ -437,7 +454,7 @@ public class Calculations {
 	 * @return The space of a station or 1 if the station has no space attribute
 	 */
 	private static int stationSpace(StationType station) {
-		if (station.space == -1) return 1;
+		if (station.space == -1) return Integer.MAX_VALUE;
 		return station.space;
 	}
 	
@@ -485,10 +502,12 @@ public class Calculations {
 	 * @return false if a station is not reachable from the given station.
 	 */
 	private static boolean otherStationsReachable(Agent me, Station station) {
+		if (pathCost(me.previousTarget.type, station.type, edge -> (false)) == -1) return false;
 		for (Map.Entry<Station, Integer> entry : me.necessities.entrySet()) {
 			if (entry.getValue() <= 0) continue;
-			if (pathCost(station.type, entry.getKey().type) == -1) return false;
+			if (pathCost(station.type, entry.getKey().type, edge -> (edge.incoming)) == -1) return false;
 		}
+		
 		return true;
 	}
 	
@@ -499,7 +518,7 @@ record ResultPair(Station station, int cost) {};
 		for (ResultPair pair : connectedStations) {
 			result += timeAtStation(me, others, pair.station);
 			result += pair.cost;
-			result += stationTargeted(me, others, pair.station);
+			result += stationTargeted(me, others, pair.station) * 3;
 		}
 		return result;
 	}
@@ -539,9 +558,9 @@ record ResultPair(Station station, int cost) {};
 	}
 	
 	// filter undirected, directed outgoing, directed incoming edges 
-	private static Predicate<TimeEdge> undirectedPredicate = edge -> (!edge.incoming && !edge.outgoing);
-	private static Predicate<TimeEdge> outgoingDirectedPredicate = edge -> (!edge.outgoing || edge.incoming);
-	private static Predicate<TimeEdge> incomingDirectedPredicate = edge -> (edge.outgoing || !edge.incoming);
+	private static Predicate<TimeEdge> undirectedPredicate = edge -> (edge.incoming || edge.outgoing);
+	private static Predicate<TimeEdge> outgoingDirectedPredicate = edge -> (edge.incoming || !edge.outgoing); // !edge.outgoing || edge.incoming);
+	private static Predicate<TimeEdge> incomingDirectedPredicate = edge -> (!edge.incoming || edge.outgoing); //edge.outgoing || !edge.incoming);
 	
 	
 	private static double computeOutgoingConnectedStations(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -582,7 +601,7 @@ record ResultPair(Station station, int cost) {};
 		}	
 	};
 	
-	private static int pathCost(StationType start, StationType target) {
+	private static int pathCost(StationType start, StationType target, Predicate<PlaceEdge> predicate) {
 		PriorityQueue<Pair> queue = new PriorityQueue<>();
 		List<StationType> used = new ArrayList<>();
 		queue.add(new Pair(start, 0));
@@ -596,7 +615,7 @@ record ResultPair(Station station, int cost) {};
 			}
 			
 			for (PlaceEdge edge : current.station().placeEdges) {
-				if (edge.incoming) continue;
+				if (predicate.test(edge)) continue;
 				queue.add(new Pair((StationType) edge.connectedType, current.cost() + edge.weight));
 			}
 			
@@ -607,7 +626,7 @@ record ResultPair(Station station, int cost) {};
 	private static int pathCost(Agent me, HashMap<Agent, Object> others, Station station) {
 		// speed is 1 for each scenario
 		// if speed should be considered then we have to divide the path cost with the agent speed
-		return pathCost(me.previousTarget.type, station.type);
+		return pathCost(me.previousTarget.type, station.type, edge -> (false));
 	}
 	
 	private static int timeAtStation(Agent me, HashMap<Agent, Object> others, Station station) {
@@ -637,7 +656,7 @@ record ResultPair(Station station, int cost) {};
 			int lowestTimeAtStation = Integer.MAX_VALUE;
 			for (VisitEdge edge : me.type.visitEdges) {
 				if (edge.connectedType instanceof StationType stationType) {
-					lowestTimeAtStation = Math.max(lowestTimeAtStation, timeAtStation(me, stationType));
+					lowestTimeAtStation = Math.min(lowestTimeAtStation, timeAtStation(me, stationType));
 				}
 			}
 			

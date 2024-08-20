@@ -12,14 +12,15 @@ public class TreeMutation {
 		Tree copy = tree.copy();
 		if (tree.isEmpty()) return copy;
 		
-		
 		List<ValueNode> valueNodes = new ArrayList<>();
 		for (Node node : copy.getLeafNodes()) {
 			if (node instanceof ValueNode valueNode) valueNodes.add(valueNode);
 		}
-		if (valueNodes.size() < 1) return copy;
+		if (valueNodes.isEmpty()) {
+			return consumerWeightMutation(tree); 
+		}
 		ValueNode randomNode = valueNodes.get(random.nextInt(valueNodes.size()));
-		randomNode.setValue(randomNode.getValue() * random.nextDouble(2.0));
+		randomNode.setValue(randomNode.getValue() * random.nextDouble(-2.0,2.0));
 		
 		return copy;
 	}
@@ -33,28 +34,28 @@ public class TreeMutation {
 		for (Node node : copy.getLeafNodes()) {
 			if (node instanceof ConsumerNode consumerNode) consumerNodes.add(consumerNode);
 		}
-		if (consumerNodes.size() < 1) return copy;
+		if (consumerNodes.isEmpty()) return copy;
 		ConsumerNode randomNode = consumerNodes.get(random.nextInt(consumerNodes.size()));
 		
 		Node tmp = findParentNode(copy, randomNode);
 		if (tmp == null) return copy;
 		
+		Node newNode = new ValueNode(random.nextDouble(-2.0,2.0));
 		if (tmp.isLeaf()) {
-			copy.setRoot(new OperatorNode(Operator.MULTIPLICATION, tmp, new ValueNode(random.nextDouble(2.0))));
+			copy.setRoot(new OperatorNode(Operator.MULTIPLICATION, tmp, newNode));
 			return copy;
 		}	
 		OperatorNode parent = (OperatorNode) tmp;
 		
 		if (parent.getLeft().equals(randomNode)) {
-			parent.setLeft(new OperatorNode(Operator.MULTIPLICATION, randomNode, new ValueNode(random.nextDouble(2.0))));
+			parent.setLeft(new OperatorNode(Operator.MULTIPLICATION, randomNode, newNode));
 		}
 		
 		if (parent.getRight().equals(randomNode)) {
-			parent.setRight(new OperatorNode(Operator.MULTIPLICATION, randomNode, new ValueNode(random.nextDouble(2.0))));
+			parent.setRight(new OperatorNode(Operator.MULTIPLICATION, randomNode, newNode));
 		}
 		
 		return copy;
-		
 	}
 	
 	
@@ -91,21 +92,29 @@ public class TreeMutation {
 		if (first.isEmpty()) return secondCopy;
 		if (second.isEmpty()) return firstCopy;
 		
-		List<OperatorNode> firstTreeNodes = firstCopy.getOperatorNodes();
-		List<OperatorNode> secondTreeNodes = secondCopy.getOperatorNodes();
+		List<Node> firstTreeNodes = firstCopy.getNodes();
+		List<Node> secondTreeNodes = secondCopy.getNodes();
 		
-		if (firstTreeNodes.size() < 1) return secondCopy;
-		if (secondTreeNodes.size() < 1) return firstCopy;
+		if (firstTreeNodes.isEmpty()) return secondCopy;
+		if (secondTreeNodes.isEmpty()) return firstCopy;
 		
-		OperatorNode firstRandomNode = firstTreeNodes.get(random.nextInt(firstTreeNodes.size()));
-		OperatorNode secondRamdomNode = secondTreeNodes.get(random.nextInt(secondTreeNodes.size()));
+		Node firstRandomNode = firstTreeNodes.get(random.nextInt(firstTreeNodes.size()));
+		Node secondRandomNode = secondTreeNodes.get(random.nextInt(secondTreeNodes.size()));
 		
-		if (random.nextDouble() >= 0.5) {
-			firstRandomNode.setLeft(secondRamdomNode);
-		} else {
-			firstRandomNode.setRight(secondRamdomNode);
+		Node parent = findParentNode(firstCopy, firstRandomNode);
+		if (firstCopy.getRoot().equals(parent)) {
+			firstCopy.setRoot(secondRandomNode);
+			return firstCopy;
 		}
+		if (parent == null) return new Tree(secondRandomNode);
 		
+		if (parent instanceof OperatorNode operatorNode) {
+			if (operatorNode.getLeft().equals(firstRandomNode)) {
+				operatorNode.setLeft(secondRandomNode);
+				return firstCopy;
+			}
+			operatorNode.setRight(secondRandomNode);
+		}
 		return firstCopy;
 	}
 	
@@ -114,7 +123,7 @@ public class TreeMutation {
 		if (copy.isEmpty()) return copy;
 		
 		List<OperatorNode> nodes = copy.getOperatorNodes();
-		if (nodes.size() < 1) return copy;
+		if (nodes.isEmpty()) return copy;
 		OperatorNode randomNode = nodes.get(random.nextInt(nodes.size()));
 		
 		double randomValue = random.nextDouble(statistic.sum() - statistic.get(randomNode.getOperator()));
@@ -128,18 +137,12 @@ public class TreeMutation {
 		}
 		
 		return copy;
-		
 	}
 	
 	
 	public static List<Tree> largeCrossover(List<Tree> first, List<Tree> second) {
-		if (first.size() == 0) {
-			return second;
-		}
-		
-		if (second.size() == 0) {
-			return first;
-		}
+		if (first.isEmpty()) return new ArrayList<>(second);
+		if (second.isEmpty()) return new ArrayList<>(first);
 		
 		int randomIndex = random.nextInt(Math.min(first.size(), second.size()));
 		

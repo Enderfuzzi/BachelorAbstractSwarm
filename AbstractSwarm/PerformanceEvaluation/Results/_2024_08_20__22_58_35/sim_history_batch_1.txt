@@ -1,0 +1,10 @@
+MutationTreeOptimizingAgent_V2,CHANGEDMultiAgentShortestPaths.xml,400,20
+MutationTreeOptimizingAgent_V2,CHANGEDSchoolTimetabling.xml,400,20
+MutationTreeOptimizingAgent_V2,CHANGEDStartingJobs.xml,400,20
+MutationTreeOptimizingAgent_V2,NEWBusLines.xml,400,20
+MutationTreeOptimizingAgent_V2,NEWFasterFood.xml,400,20
+MutationTreeOptimizingAgent_V2,NEWLabAndAnalytics.xml,400,20
+MutationTreeOptimizingAgent_V2,NEWPaintShop.xml,400,20
+MutationTreeOptimizingAgent_V2,SCALEDElevator.xml,400,20
+MutationTreeOptimizingAgent_V2,SCALEDPatientTransportation.xml,400,20
+MutationTreeOptimizingAgent_V2,SCALEDStorage2.xml,400,20

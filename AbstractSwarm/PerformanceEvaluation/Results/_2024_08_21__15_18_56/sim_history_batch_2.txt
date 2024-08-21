@@ -1,0 +1,10 @@
+ABMetaLearnerMod,CHANGEDMultiAgentShortestPaths.xml,100,20
+ABMetaLearnerMod,CHANGEDSchoolTimetabling.xml,100,20
+ABMetaLearnerMod,CHANGEDStartingJobs.xml,100,20
+ABMetaLearnerMod,NEWBusLines.xml,100,20
+ABMetaLearnerMod,NEWFasterFood.xml,100,20
+ABMetaLearnerMod,NEWLabAndAnalytics.xml,100,20
+ABMetaLearnerMod,NEWPaintShop.xml,100,20
+ABMetaLearnerMod,SCALEDElevator.xml,100,20
+ABMetaLearnerMod,SCALEDPatientTransportation.xml,100,20
+ABMetaLearnerMod,SCALEDStorage2.xml,100,20

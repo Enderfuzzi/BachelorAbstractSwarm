@@ -1,0 +1,1 @@
+Similar to School Timetabling shipped as example scenario with AbstractSwarm but with spacial dependencies among rooms of different kinds and adapted course lengths in relation to the spacial dependencies (some additionally added frequency attributed are also provided for are more complete modeling).

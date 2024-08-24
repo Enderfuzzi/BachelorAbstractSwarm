@@ -1,0 +1,1 @@
+Similar to Elevator from 2023 with twice the number of persons (note that also frequency/space attributes had to be changed/introduced here for technical reasons).

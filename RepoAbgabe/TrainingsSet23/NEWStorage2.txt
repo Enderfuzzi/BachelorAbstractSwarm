@@ -1,0 +1,1 @@
+Another storage scenario where also the spacial anatomy of the warehouse and the limited space of shelves are taken into account. Storage problem with spatial dependencies/limitations.

@@ -1,0 +1,1 @@
+Two painters have to paint products with different colors having different drying times. Some of the products have to be delivered to different customers afterwards. Spatio-temporal problem with a focus on time edges.

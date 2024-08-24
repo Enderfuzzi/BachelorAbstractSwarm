@@ -1,0 +1,1 @@
+Similar to Production Lines from 2022 but with more products and more workers (which might be considered as a slightly different problem since there are enough workers now to control all workstations simultaneously).

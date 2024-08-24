@@ -1,0 +1,1 @@
+Reduced version of Multi-Agent Shortest Paths shipped as example scenario with AbstractSwarm where agents of different speed have to visit several locations. The speed is modeled through different place edges here (instead of speed attributes) and a coordinator ensures that the same station cannot be visited by more than one agent at a time.

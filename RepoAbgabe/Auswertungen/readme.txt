@@ -1,0 +1,1 @@
+Die Implementierungen für "DecisionTreeAgent" und "MutationTreeAgent" trugen die Internen Namen "DecisionTreeOptimizingAgent_V2" und "MutationTreeOptimizingAgent_V2". Die erfolgte mit den internen Namen. Aus diesem Grund tragen die Auswertungsergebnisse die Internen Namen.

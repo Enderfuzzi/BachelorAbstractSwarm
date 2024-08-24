@@ -1,0 +1,1 @@
+Lab workers share a single reagent from a freezer at their workstations. Subsequently, the work is handed over to an analytics worker performing a test either on an old (slow) or a new (fast) device.

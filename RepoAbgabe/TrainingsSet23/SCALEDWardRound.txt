@@ -1,0 +1,1 @@
+Similar to (the original) WardRound but with twice the number of rooms/patients to be visited by the doctor.

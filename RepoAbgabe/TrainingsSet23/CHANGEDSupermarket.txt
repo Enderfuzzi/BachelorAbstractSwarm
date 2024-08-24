@@ -1,0 +1,1 @@
+Similar to Supermarket from 2022 with a separate fast checkout that can only be used for small carts and single products.

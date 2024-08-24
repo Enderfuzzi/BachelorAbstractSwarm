@@ -1,0 +1,1 @@
+Different buses coordinated by a control center have to reach the main station while partly sharing bus stops.

@@ -294,4 +294,25 @@ _sim_end
 
 
 
-
+AgentLearning,CHANGEDManufacturingProcess.xml,100,20 
+AgentLearning,CHANGEDSupermarket.xml,100,20 
+AgentLearning,CHANGEDTreatments.xml,100,20 
+AgentLearning,NEWElevator.xml,100,20 
+AgentLearning,NEWPatientTransportation.xml,100,20 
+AgentLearning,NEWStartingJobs.xml,100,20 
+AgentLearning,NEWStorage2.xml,100,20 
+AgentLearning,SCALEDPackaging.xml,100,20 
+AgentLearning,SCALEDProductionLines.xml,100,20 
+AgentLearning,SCALEDWardRound.xml,100,20 
+_batch_end
+ABMetaLearnerMod,CHANGEDMultiAgentShortestPaths.xml,100,20 
+ABMetaLearnerMod,CHANGEDSchoolTimetabling.xml,100,20 
+ABMetaLearnerMod,CHANGEDStartingJobs.xml,100,20 
+ABMetaLearnerMod,NEWBusLines.xml,100,20 
+ABMetaLearnerMod,NEWFasterFood.xml,100,20 
+ABMetaLearnerMod,NEWLabAndAnalytics.xml,100,20 
+ABMetaLearnerMod,NEWPaintShop.xml,100,20 
+ABMetaLearnerMod,SCALEDElevator.xml,100,20 
+ABMetaLearnerMod,SCALEDPatientTransportation.xml,100,20 
+ABMetaLearnerMod,SCALEDStorage2.xml,100,20 
+_sim_end

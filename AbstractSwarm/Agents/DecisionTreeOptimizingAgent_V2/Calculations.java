@@ -767,7 +767,7 @@ class ProbabilityStatistic {
 			if (entry.getValue() != highest) {
 				entry.getValue().setThreshold(computeAverage(entry.getKey()));
 			} else {
-				entry.getValue().setThreshold(computeAverage(entry.getKey() + 0.05));
+				entry.getValue().setThreshold(0);
 			}
 		}
 	}

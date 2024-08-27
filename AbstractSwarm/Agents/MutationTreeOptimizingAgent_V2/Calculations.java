@@ -6,7 +6,6 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.function.Predicate;
 
-
 public class Calculations {
 	
 	private static HashMap<Attribute, Node> attributeNodes = new HashMap<>();
@@ -791,14 +790,6 @@ class ProbabilityStatistic {
 		}
 	}
 	
-	public void recover() {
-		for (Map.Entry<String, Double> entry : initialValues.entrySet()) {
-			if (map.containsKey(entry.getKey())) {
-				map.get(entry.getKey()).setThreshold(entry.getValue());
-			}
-		}
-	}
-	
 	public void reset() {
 		addToPast();
 		Pair highest = null;
@@ -811,7 +802,19 @@ class ProbabilityStatistic {
 			if (entry.getValue() != highest) {
 				entry.getValue().setThreshold(computeAverage(entry.getKey()));
 			} else {
-				entry.getValue().setThreshold(computeAverage(entry.getKey() + 0.05));
+				entry.getValue().setThreshold(0);
+			}
+		}
+	}
+	
+	public void recover() {
+		for (Map.Entry<String, List<Double>> entry : pastValues.entrySet()) {
+			if (map.containsKey(entry.getKey())) {
+				if (entry.getValue().size() > 0) {
+					map.get(entry.getKey()).setThreshold(entry.getValue().get(entry.getValue().size() - 1));
+				} else {
+					map.get(entry.getKey()).setThreshold(0.35);
+				}
 			}
 		}
 	}
